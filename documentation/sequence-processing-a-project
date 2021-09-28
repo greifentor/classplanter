@@ -1,0 +1,14 @@
+@startuml
+
+ClassPlanter -> JavaCodeParser: readCompilationUnits(projetPath)
+JavaCodeParser -> ClassPlanter: Project
+
+ClassPlanter -> ClassFilter: filterClasses(Filter, Project)
+ClassFilter -> ClassPlanter: FilteredProject
+
+ClassPlanter -> PlantUMLWriter: createPlantUMLClassFile(Path, FilteredProject)
+PlantUMLWriter -> FileSystem: write the file
+
+PlantUMLWriter -> ClassPlanter: void
+
+@enduml

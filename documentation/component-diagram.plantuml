@@ -1,0 +1,9 @@
+@startuml
+
+component classplanter {
+	[java-code-parser]
+	[class-filter]
+	[plantuml-writer]
+}
+
+@enduml
