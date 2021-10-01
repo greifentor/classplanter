@@ -60,8 +60,12 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	@Override
 	public void fileFound(FileFoundEvent event) {
+		if (!event.getPath().toString().toLowerCase().endsWith(".java")) {
+			return;
+		}
 		String fileContent;
 		try {
+			System.out.println("processing file: " + event.getPath());
 			fileContent = Files.readString(event.getPath());
 		} catch (IOException e) {
 			e.printStackTrace();
