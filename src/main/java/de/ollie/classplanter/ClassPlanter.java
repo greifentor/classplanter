@@ -41,8 +41,11 @@ public class ClassPlanter {
 				traversal.traverse();
 				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener);
 				if (cmd.hasOption("tf")) {
-					String targetFileName = cmd.getOptionValue("tf");
-					Files.writeString(Path.of(targetFileName), result, StandardOpenOption.CREATE_NEW);
+					Path targetFilePath = Path.of(cmd.getOptionValue("tf"));
+					if (Files.exists(targetFilePath)) {
+						Files.delete(targetFilePath);
+					}
+					Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
 				}
 			}
 		} catch (IOException ioe) {
