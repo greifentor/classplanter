@@ -16,6 +16,8 @@ import org.apache.commons.cli.ParseException;
 import de.ollie.blueprints.codereader.java.JavaCodeConverter;
 import de.ollie.blueprints.codereader.java.model.ClassDeclaration;
 import de.ollie.blueprints.codereader.java.model.CompilationUnit;
+import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
+import de.ollie.blueprints.codereader.java.model.Modifier;
 import de.ollie.blueprints.codereader.java.model.TypeDeclaration;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
@@ -62,7 +64,6 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 		try {
 			fileContent = Files.readString(event.getPath());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
 		}
@@ -80,13 +81,23 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private Type getType(TypeDeclaration typeDeclaration) {
 		if (typeDeclaration instanceof ClassDeclaration) {
+			if (((ClassDeclaration) typeDeclaration).getModifiers().contains(Modifier.ABSTRACT)) {
+				return Type.ABSTRACT_CLASS;
+			}
 			return Type.CLASS;
+		} else if (typeDeclaration instanceof InterfaceDeclaration) {
+			return Type.INTERFACE;
 		}
 		return Type.UNKNOWN;
 	}
 
 	public List<TypeData> getClasses() {
-		return types.stream().filter(typeData -> typeData.getType() == Type.CLASS).collect(Collectors.toList());
+		return types
+				.stream()
+				.filter(
+						typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
+								|| (typeData.getType() == Type.INTERFACE))
+				.collect(Collectors.toList());
 	}
 
 }
@@ -107,9 +118,19 @@ class PlantUMLClassDiagramCreator {
 	private String getClassCode(List<TypeData> classes) {
 		return classes
 				.stream()
-				.map(classData -> "class " + classData.getClassName() + " {\n}\n")
+				.sorted(
+						(typeData0,
+								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
+				.map(typeData -> getTypeKeyWord(typeData) + typeData.getClassName() + " {\n}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
+	}
+
+	private String getTypeKeyWord(TypeData typeData) {
+		if (typeData.getType() == Type.INTERFACE) {
+			return "interface ";
+		}
+		return (typeData.getType() == Type.ABSTRACT_CLASS ? "abstract " : "") + "class ";
 	}
 
 }

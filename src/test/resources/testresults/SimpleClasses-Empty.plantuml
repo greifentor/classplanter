@@ -1,0 +1,15 @@
+@startuml
+
+class SimpleClass1 {
+}
+
+class SimpleClass2 {
+}
+
+class SimpleClass3 {
+}
+
+abstract class SimpleClass4 {
+}
+
+@enduml

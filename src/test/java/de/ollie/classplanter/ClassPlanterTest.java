@@ -15,16 +15,51 @@ public class ClassPlanterTest {
 	class TestsOfMethod_main_String_Arr {
 
 		@Test
-		void passConfigurationForOneClass_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+		void passParametersForOneClass_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/simple-empty/SimpleClass-Empty.plantuml"));
+			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleClass-Empty.plantuml"));
 			// Run
 			ClassPlanter
 					.main(
 							new String[] {
 									"-sf",
-									"src/test/resources/testresults/simple-empty",
+									"src/test/resources/testsources/simple-class",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParameterForMoreThanOneClassInOneFolder_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleClasses-Empty.plantuml"));
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-classes",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersForOneInterface_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/SimpleInterface-Empty.plantuml"));
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-interface",
 									"-tf",
 									tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));

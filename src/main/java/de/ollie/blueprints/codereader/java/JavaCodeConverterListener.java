@@ -25,6 +25,8 @@ import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FormalParameterCont
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FormalParameterListContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FormalParametersContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ImportDeclarationContext;
+import de.ollie.blueprints.codereader.java.antlr.Java8Parser.InterfaceDeclarationContext;
+import de.ollie.blueprints.codereader.java.antlr.Java8Parser.InterfaceModifierContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.LastFormalParameterContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.MarkerAnnotationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.MethodDeclarationContext;
@@ -33,6 +35,7 @@ import de.ollie.blueprints.codereader.java.antlr.Java8Parser.MethodHeaderContext
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.MethodModifierContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.NormalAnnotationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.NormalClassDeclarationContext;
+import de.ollie.blueprints.codereader.java.antlr.Java8Parser.NormalInterfaceDeclarationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.PackageDeclarationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.PackageNameContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.PackageOrTypeNameContext;
@@ -56,6 +59,7 @@ import de.ollie.blueprints.codereader.java.model.ElementValuePair;
 import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
 import de.ollie.blueprints.codereader.java.model.FormalParameter;
 import de.ollie.blueprints.codereader.java.model.ImportDeclaration;
+import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 import de.ollie.blueprints.codereader.java.model.MethodDeclaration;
 import de.ollie.blueprints.codereader.java.model.Modifier;
 
@@ -84,57 +88,71 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 	}
 
 	private void readPackageDeclaration(CompilationUnitContext ctx) {
-		findChildByClass(ctx, PackageDeclarationContext.class).ifPresent(//
-				pdc -> findChildByClass(pdc, PackageNameContext.class).ifPresent(//
-						pnc -> compilationUnit.setPackageName(pnc.getText()) //
-				) //
-		);
+		findChildByClass(ctx, PackageDeclarationContext.class)
+				.ifPresent(//
+						pdc -> findChildByClass(pdc, PackageNameContext.class)
+								.ifPresent(//
+										pnc -> compilationUnit.setPackageName(pnc.getText()) //
+								) //
+				);
 	}
 
 	private void readImportDeclarations(CompilationUnitContext ctx) {
 		for (ImportDeclarationContext idc : findChildsByClass(ctx, ImportDeclarationContext.class)) {
-			for (SingleStaticImportDeclarationContext ssidc : findChildsByClass(idc,
+			for (SingleStaticImportDeclarationContext ssidc : findChildsByClass(
+					idc,
 					SingleStaticImportDeclarationContext.class)) {
-				findChildByClass(ssidc, TypeNameContext.class).ifPresent( //
-						tnc -> {
-							List<TerminalNodeImpl> tnis = findChildsByClass(ssidc, TerminalNodeImpl.class);
-							compilationUnit.addImportDeclarations( //
-									new ImportDeclaration() //
-											.setImportedObject(tnis.get(tnis.size() - 2).getText()) //
-											.setQualifiedName(tnc.getText()) //
-											.setStaticImport(true));
-						} //
-				);
+				findChildByClass(ssidc, TypeNameContext.class)
+						.ifPresent( //
+								tnc -> {
+									List<TerminalNodeImpl> tnis = findChildsByClass(ssidc, TerminalNodeImpl.class);
+									compilationUnit
+											.addImportDeclarations( //
+													new ImportDeclaration() //
+															.setImportedObject(tnis.get(tnis.size() - 2).getText()) //
+															.setQualifiedName(tnc.getText()) //
+															.setStaticImport(true));
+								} //
+						);
 			}
-			for (StaticImportOnDemandDeclarationContext sioddc : findChildsByClass(idc,
+			for (StaticImportOnDemandDeclarationContext sioddc : findChildsByClass(
+					idc,
 					StaticImportOnDemandDeclarationContext.class)) {
-				findChildByClass(sioddc, TypeNameContext.class).ifPresent( //
-						tnc -> compilationUnit.addImportDeclarations( //
-								new ImportDeclaration() //
-										.setQualifiedName(tnc.getText()) //
-										.setSingleTypeImport(false) //
-										.setStaticImport(true) //
-						) //
-				);
+				findChildByClass(sioddc, TypeNameContext.class)
+						.ifPresent( //
+								tnc -> compilationUnit
+										.addImportDeclarations( //
+												new ImportDeclaration() //
+														.setQualifiedName(tnc.getText()) //
+														.setSingleTypeImport(false) //
+														.setStaticImport(true) //
+										) //
+						);
 			}
-			for (SingleTypeImportDeclarationContext stidc : findChildsByClass(idc,
+			for (SingleTypeImportDeclarationContext stidc : findChildsByClass(
+					idc,
 					SingleTypeImportDeclarationContext.class)) {
-				findChildByClass(stidc, TypeNameContext.class).ifPresent( //
-						tnc -> compilationUnit.addImportDeclarations( //
-								new ImportDeclaration() //
-										.setQualifiedName(tnc.getText()) //
-						) //
-				);
+				findChildByClass(stidc, TypeNameContext.class)
+						.ifPresent( //
+								tnc -> compilationUnit
+										.addImportDeclarations( //
+												new ImportDeclaration() //
+														.setQualifiedName(tnc.getText()) //
+										) //
+						);
 			}
-			for (TypeImportOnDemandDeclarationContext tioddc : findChildsByClass(idc,
+			for (TypeImportOnDemandDeclarationContext tioddc : findChildsByClass(
+					idc,
 					TypeImportOnDemandDeclarationContext.class)) {
-				findChildByClass(tioddc, PackageOrTypeNameContext.class).ifPresent( //
-						potnc -> compilationUnit.addImportDeclarations( //
-								new ImportDeclaration() //
-										.setQualifiedName(potnc.getText()) //
-										.setSingleTypeImport(false) //
-						) //
-				);
+				findChildByClass(tioddc, PackageOrTypeNameContext.class)
+						.ifPresent( //
+								potnc -> compilationUnit
+										.addImportDeclarations( //
+												new ImportDeclaration() //
+														.setQualifiedName(potnc.getText()) //
+														.setSingleTypeImport(false) //
+										) //
+						);
 			}
 		}
 	}
@@ -143,21 +161,40 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 		for (TypeDeclarationContext tdc : findChildsByClass(ctx, TypeDeclarationContext.class)) {
 			for (ClassDeclarationContext cdc : findChildsByClass(tdc, ClassDeclarationContext.class)) {
 				for (NormalClassDeclarationContext ncdc : findChildsByClass(cdc, NormalClassDeclarationContext.class)) {
-					findNextChildByClassAndContent(ncdc, TerminalNodeImpl.class, "class").ifPresentOrElse( //
-							tni -> {
-								ClassDeclaration classDeclaration = new ClassDeclaration() //
-										.addAnnotations(getAnnotations(ncdc, ClassModifierContext.class)) //
-										.addFields(getFields(ncdc)) //
-										.addMethods(getMethods(ncdc))
-										.addModifiers(getModifiers(ncdc, ClassModifierContext.class)) //
-										.setName(tni.getText()) //
-								;
-								this.compilationUnit.addTypeDeclarations(classDeclaration);
-							}, //
-							() -> {
-								throw new JavaCodeConverterException("ERROR: not found: 'class' in: " + ncdc.getText(),
-										null);
-							});
+					findNextChildByClassAndContent(ncdc, TerminalNodeImpl.class, "class")
+							.ifPresentOrElse( //
+									tni -> {
+										ClassDeclaration classDeclaration = new ClassDeclaration()
+												.addAnnotations(getAnnotations(ncdc, ClassModifierContext.class))
+												.addFields(getFields(ncdc))
+												.addMethods(getMethods(ncdc))
+												.addModifiers(getModifiers(ncdc, ClassModifierContext.class))
+												.setName(tni.getText());
+										this.compilationUnit.addTypeDeclarations(classDeclaration);
+									},
+									() -> {
+										throw new JavaCodeConverterException(
+												"ERROR: not found: 'class' in: " + ncdc.getText(),
+												null);
+									});
+				}
+			}
+			for (InterfaceDeclarationContext idc : findChildsByClass(tdc, InterfaceDeclarationContext.class)) {
+				for (NormalInterfaceDeclarationContext nidc : findChildsByClass(
+						idc,
+						NormalInterfaceDeclarationContext.class)) {
+					findNextChildByClassAndContent(nidc, TerminalNodeImpl.class, "interface").ifPresentOrElse(tni -> {
+						InterfaceDeclaration interfaceDeclaration = new InterfaceDeclaration()
+								.addAnnotations(getAnnotations(nidc, InterfaceModifierContext.class))
+								.addMethods(getMethods(nidc))
+								.addModifiers(getModifiers(nidc, InterfaceModifierContext.class))
+								.setName(tni.getText());
+						this.compilationUnit.addTypeDeclarations(interfaceDeclaration);
+					}, () -> {
+						throw new JavaCodeConverterException(
+								"ERROR: not found: 'interface' in: " + nidc.getText(),
+								null);
+					});
 				}
 			}
 		}
@@ -167,40 +204,66 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 		List<Annotation> l = new ArrayList<>();
 		for (T mc : findChildsByClass(prc, cls)) {
 			for (AnnotationContext ac : findChildsByClass(mc, AnnotationContext.class)) {
-				findChildByClass(ac, MarkerAnnotationContext.class).ifPresent( //
-						mac -> findChildByClass(mac, TypeNameContext.class).ifPresent( //
-								tnc -> l.add(new Annotation().setName(tnc.getText())) //
-						) //
-				);
-				findChildByClass(ac, SingleElementAnnotationContext.class).ifPresent( //
-						seac -> findChildByClass(seac, TypeNameContext.class).ifPresent( //
-								tnc -> l.add(new Annotation().setName(tnc.getText()).setValue( //
-										findChildByClass(seac, ElementValueContext.class) //
-												.map(ElementValueContext::getText) //
-												.get() //
-								)) //
-						) //
-				);
-				findChildByClass(ac, NormalAnnotationContext.class).ifPresent( //
-						nac -> findChildByClass(nac, TypeNameContext.class).ifPresent( //
-								tnc -> {
-									Annotation annotation = new Annotation().setName(tnc.getText());
-									l.add(annotation);
-									findChildByClass(nac, ElementValuePairListContext.class).ifPresent( //
-											evplc -> findChildsByClass(evplc, ElementValuePairContext.class) //
-													.forEach(evpc -> {
-														String key = findChildByClass(evpc, TerminalNodeImpl.class)
-																.get().getText();
-														String value = findChildByClass(evpc, ElementValueContext.class)
-																.get().getText();
-														annotation.addElementValues(new ElementValuePair() //
-																.setKey(key) //
-																.setValue(value) //
-														);
-													}) //
-									);
-								}) //
-				);
+				findChildByClass(ac, MarkerAnnotationContext.class)
+						.ifPresent( //
+								mac -> findChildByClass(mac, TypeNameContext.class)
+										.ifPresent( //
+												tnc -> l.add(new Annotation().setName(tnc.getText())) //
+										) //
+						);
+				findChildByClass(ac, SingleElementAnnotationContext.class)
+						.ifPresent( //
+								seac -> findChildByClass(seac, TypeNameContext.class)
+										.ifPresent( //
+												tnc -> l
+														.add(
+																new Annotation()
+																		.setName(tnc.getText())
+																		.setValue( //
+																				findChildByClass(
+																						seac,
+																						ElementValueContext.class) //
+																								.map(
+																										ElementValueContext::getText) //
+																								.get() //
+																		)) //
+										) //
+						);
+				findChildByClass(ac, NormalAnnotationContext.class)
+						.ifPresent( //
+								nac -> findChildByClass(nac, TypeNameContext.class)
+										.ifPresent( //
+												tnc -> {
+													Annotation annotation = new Annotation().setName(tnc.getText());
+													l.add(annotation);
+													findChildByClass(nac, ElementValuePairListContext.class)
+															.ifPresent( //
+																	evplc -> findChildsByClass(
+																			evplc,
+																			ElementValuePairContext.class) //
+																					.forEach(evpc -> {
+																						String key = findChildByClass(
+																								evpc,
+																								TerminalNodeImpl.class)
+																										.get()
+																										.getText();
+																						String value = findChildByClass(
+																								evpc,
+																								ElementValueContext.class)
+																										.get()
+																										.getText();
+																						annotation
+																								.addElementValues(
+																										new ElementValuePair() //
+																												.setKey(
+																														key) //
+																												.setValue(
+																														value) //
+																						);
+																					}) //
+													);
+												}) //
+						);
 			}
 		}
 		return l.toArray(new Annotation[0]);
@@ -210,19 +273,22 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 		List<FieldDeclaration> l = new ArrayList<>();
 		for (ClassBodyContext cbc : findChildsByClass(prc, ClassBodyContext.class)) {
 			for (ClassBodyDeclarationContext cbdc : findChildsByClass(cbc, ClassBodyDeclarationContext.class)) {
-				for (ClassMemberDeclarationContext cmdc : findChildsByClass(cbdc,
+				for (ClassMemberDeclarationContext cmdc : findChildsByClass(
+						cbdc,
 						ClassMemberDeclarationContext.class)) {
 					for (FieldDeclarationContext fdc : findChildsByClass(cmdc, FieldDeclarationContext.class)) {
 						Annotation[] annotations = getAnnotations(fdc, FieldModifierContext.class);
 						Modifier[] modifier = getModifiers(fdc, FieldModifierContext.class);
 						String type = getType(fdc);
 						for (String name : getVariableNames(fdc)) {
-							l.add(new FieldDeclaration() //
-									.addAnnotations(annotations) //
-									.addModifiers(modifier) //
-									.setName(name) //
-									.setType(type) //
-							);
+							l
+									.add(
+											new FieldDeclaration() //
+													.addAnnotations(annotations) //
+													.addModifiers(modifier) //
+													.setName(name) //
+													.setType(type) //
+									);
 						}
 					}
 				}
@@ -233,43 +299,79 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 
 	private MethodDeclaration[] getMethods(ParserRuleContext prc) {
 		List<MethodDeclaration> l = new ArrayList<>();
-		findChildByClass(prc, ClassBodyContext.class).ifPresent( //
-				cbc -> findChildsByClass(cbc, ClassBodyDeclarationContext.class).forEach( //
-						cbdc -> findChildsByClass(cbdc, ClassMemberDeclarationContext.class).forEach( //
-								cmdc -> findChildsByClass(cmdc, MethodDeclarationContext.class).forEach( //
-										mdc -> findChildByClass(mdc, MethodHeaderContext.class).ifPresent( //
-												mhc -> l.add(new MethodDeclaration() //
-														.addAnnotations(
-																getAnnotations(mdc, MethodModifierContext.class)) //
-														.addFormalParameters(getFormalParameters(mhc)) //
-														.addModifiers(getModifiers(mdc, MethodModifierContext.class)) //
-														.setName(getMethodName(mhc)) //
-														.setReturnType(getReturnType(mhc)) //
+		findChildByClass(prc, ClassBodyContext.class)
+				.ifPresent( //
+						cbc -> findChildsByClass(cbc, ClassBodyDeclarationContext.class)
+								.forEach( //
+										cbdc -> findChildsByClass(cbdc, ClassMemberDeclarationContext.class)
+												.forEach( //
+														cmdc -> findChildsByClass(cmdc, MethodDeclarationContext.class)
+																.forEach( //
+																		mdc -> findChildByClass(
+																				mdc,
+																				MethodHeaderContext.class)
+																						.ifPresent( //
+																								mhc -> l
+																										.add(
+																												new MethodDeclaration() //
+																														.addAnnotations(
+																																getAnnotations(
+																																		mdc,
+																																		MethodModifierContext.class)) //
+																														.addFormalParameters(
+																																getFormalParameters(
+																																		mhc)) //
+																														.addModifiers(
+																																getModifiers(
+																																		mdc,
+																																		MethodModifierContext.class)) //
+																														.setName(
+																																getMethodName(
+																																		mhc)) //
+																														.setReturnType(
+																																getReturnType(
+																																		mhc)) //
+																										) //
+																						) //
+																) //
 												) //
-										) //
 								) //
-						) //
-				) //
-		);
+				);
 		return l.toArray(new MethodDeclaration[0]);
 	}
 
 	private FormalParameter[] getFormalParameters(MethodHeaderContext mhc) {
 		List<FormalParameter> l = new ArrayList<>();
-		findChildsByClass(mhc, MethodDeclaratorContext.class).forEach( //
-				mdc -> findChildsByClass(mdc, FormalParameterListContext.class).forEach( //
-						fplc -> {
-							findChildsByClass(fplc, FormalParametersContext.class).forEach( //
-									fpcs -> findChildsByClass(fpcs, FormalParameterContext.class).forEach( //
-											fpc -> l.add(getFormalParameter(fpc))) //
-							);
-							findChildsByClass(fplc, LastFormalParameterContext.class).forEach( //
-									lfpc -> findChildsByClass(lfpc, FormalParameterContext.class).forEach( //
-											fpc -> l.add(getFormalParameter(fpc))) //
-							);
-						} //
-				) //
-		);
+		findChildsByClass(mhc, MethodDeclaratorContext.class)
+				.forEach( //
+						mdc -> findChildsByClass(mdc, FormalParameterListContext.class)
+								.forEach( //
+										fplc -> {
+											findChildsByClass(fplc, FormalParametersContext.class)
+													.forEach( //
+															fpcs -> findChildsByClass(
+																	fpcs,
+																	FormalParameterContext.class)
+																			.forEach( //
+																					fpc -> l
+																							.add(
+																									getFormalParameter(
+																											fpc))) //
+											);
+											findChildsByClass(fplc, LastFormalParameterContext.class)
+													.forEach( //
+															lfpc -> findChildsByClass(
+																	lfpc,
+																	FormalParameterContext.class)
+																			.forEach( //
+																					fpc -> l
+																							.add(
+																									getFormalParameter(
+																											fpc))) //
+											);
+										} //
+								) //
+				);
 		return l.toArray(new FormalParameter[0]);
 	}
 
@@ -288,9 +390,10 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 
 	private String getMethodName(MethodHeaderContext mhc) {
 		return findChildByClass(mhc, MethodDeclaratorContext.class) //
-				.map(mdc -> findChildByClass(mdc, TerminalNodeImpl.class) //
-						.map(TerminalNodeImpl::getText) //
-						.orElse(UNKNOWN) //
+				.map(
+						mdc -> findChildByClass(mdc, TerminalNodeImpl.class) //
+								.map(TerminalNodeImpl::getText) //
+								.orElse(UNKNOWN) //
 				) //
 				.orElse(UNKNOWN); //
 	}
