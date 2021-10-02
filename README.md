@@ -19,6 +19,11 @@ The application is generally able to create a class diagram for a java source pa
 * Identifies many to one relations (of type "List", "Set" and "Stack").
 
 
+## What Does It NOT Manage?
+
+* Lists of lists, sets of sets and so on.
+
+
 ## How to Compile?
 
 ### Requirements
