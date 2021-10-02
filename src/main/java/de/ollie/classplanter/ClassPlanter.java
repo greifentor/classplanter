@@ -16,9 +16,13 @@ import org.apache.commons.cli.ParseException;
 import de.ollie.blueprints.codereader.java.JavaCodeConverter;
 import de.ollie.blueprints.codereader.java.model.ClassDeclaration;
 import de.ollie.blueprints.codereader.java.model.CompilationUnit;
+import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
 import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 import de.ollie.blueprints.codereader.java.model.Modifier;
 import de.ollie.blueprints.codereader.java.model.TypeDeclaration;
+import de.ollie.classplanter.model.AssociationData;
+import de.ollie.classplanter.model.AssociationData.AssociationType;
+import de.ollie.classplanter.model.ClassKeyData;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
 import de.ollie.fstools.traversal.FileFoundEvent;
@@ -40,13 +44,14 @@ public class ClassPlanter {
 				traversal.addFileFoundListener(fileFoundListener);
 				traversal.traverse();
 				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener);
+				Path targetFilePath = Path.of("result.plantuml");
 				if (cmd.hasOption("tf")) {
-					Path targetFilePath = Path.of(cmd.getOptionValue("tf"));
-					if (Files.exists(targetFilePath)) {
-						Files.delete(targetFilePath);
-					}
-					Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
+					targetFilePath = Path.of(cmd.getOptionValue("tf"));
 				}
+				if (Files.exists(targetFilePath)) {
+					Files.delete(targetFilePath);
+				}
+				Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
 			}
 		} catch (IOException ioe) {
 			System.out.println(ioe.getMessage());
@@ -59,7 +64,29 @@ public class ClassPlanter {
 
 class ClassPlanterFileFoundListener implements FileFoundListener {
 
+	private static final List<String> SIMPLE_TYPE_NAMES = List
+			.of(
+					"boolean",
+					"Boolean",
+					"byte",
+					"Byte",
+					"char",
+					"Character",
+					"double",
+					"Double",
+					"float",
+					"Float",
+					"int",
+					"Integer",
+					"long",
+					"Long",
+					"short",
+					"Short",
+					"String");
+	private static final List<String> MANY_TYPE_NAMES = List.of("List<", "Set<", "Stack<");
+
 	private List<TypeData> types = new ArrayList<>();
+	private List<AssociationData> associations = new ArrayList<>();
 
 	@Override
 	public void fileFound(FileFoundEvent event) {
@@ -86,6 +113,9 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 												.setPackageName(compilationUnit.getPackageName())
 												.setSuperClassName(getSuperClassName(typeDeclaration))
 												.setType(getType(typeDeclaration))));
+		compilationUnit
+				.getTypeDeclarations()
+				.forEach(typeDeclaration -> associations.addAll(getAssociationsOfTypeDeclaration(typeDeclaration)));
 	}
 
 	private Type getType(TypeDeclaration typeDeclaration) {
@@ -116,13 +146,62 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 				.collect(Collectors.toList());
 	}
 
-	public String[] getSuperInterfaceNames(TypeDeclaration typeDeclaration) {
+	public List<AssociationData> getAssociations() {
+		return associations;
+	}
+
+	private String[] getSuperInterfaceNames(TypeDeclaration typeDeclaration) {
 		if (typeDeclaration instanceof ClassDeclaration) {
 			return ((ClassDeclaration) typeDeclaration).getImplementedInterfaceNames().toArray(new String[0]);
 		} else if (typeDeclaration instanceof InterfaceDeclaration) {
 			return ((InterfaceDeclaration) typeDeclaration).getSuperInterfaceNames().toArray(new String[0]);
 		}
 		return new String[0];
+	}
+
+	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration) {
+		List<AssociationData> associations = new ArrayList<>();
+		if (typeDeclaration instanceof ClassDeclaration) {
+			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
+				if (isClassType(fieldDeclaration)) {
+					associations
+							.add(
+									new AssociationData()
+											.setFrom(new ClassKeyData().setClassName(typeDeclaration.getName()))
+											.setTo(
+													new ClassKeyData()
+															.setClassName(removeManyType(fieldDeclaration.getType())))
+											.setType(getAssociationType(fieldDeclaration.getType())));
+				}
+			}
+		}
+		return associations;
+	}
+
+	private boolean isClassType(FieldDeclaration fieldDeclaration) {
+		return !SIMPLE_TYPE_NAMES.contains(fieldDeclaration.getType());
+	}
+
+	private AssociationType getAssociationType(String type) {
+		return isManyType(type) ? AssociationType.MANY_TO_ONE : AssociationType.ONE_TO_ONE;
+	}
+
+	private boolean isManyType(String type) {
+		for (String typePrefix : MANY_TYPE_NAMES) {
+			if (type.startsWith(typePrefix)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String removeManyType(String type) {
+		for (String typePrefix : MANY_TYPE_NAMES) {
+			if (type.startsWith(typePrefix)) {
+				return type.substring(0, type.length()-1).replace(typePrefix, "");
+			}
+		}
+		return type;
 	}
 
 }
@@ -134,9 +213,11 @@ class PlantUMLClassDiagramCreator {
 				+ "\n" //
 				+ "{0}" //
 				+ "\n" //
+				+ "{1}" //
 				+ "@enduml" //
 		;
 		code = code.replace("{0}", getClassCode(fileFoundListener.getClasses()));
+		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations()));
 		return code;
 	}
 
@@ -169,6 +250,21 @@ class PlantUMLClassDiagramCreator {
 		String interfaceNames =
 				typeData.getSuperInterfaceNames().stream().reduce((s0, s1) -> s0 + ", " + s1).orElse("");
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
+	}
+
+	private String getAssociationCode(List<AssociationData> associations) {
+		return associations
+				.stream()
+				.map(associationData -> getAssociation(associationData) + "\n")
+				.reduce((s0, s1) -> s0 + "\n" + s1)
+				.map(s -> s + "\n")
+				.orElse("");
+	}
+
+	private String getAssociation(AssociationData association) {
+		return association.getFrom().getClassName() + " --> "
+				+ (association.getType() == AssociationType.MANY_TO_ONE ? "\"*\" " : "")
+				+ association.getTo().getClassName();
 	}
 
 }

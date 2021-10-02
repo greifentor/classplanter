@@ -86,6 +86,41 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForASimpleAssociation_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleAssociation.plantuml"));
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-association",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersForAManyToOneAssociation_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/ManyToOneAssociation.plantuml"));
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/many-to-one-association",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }

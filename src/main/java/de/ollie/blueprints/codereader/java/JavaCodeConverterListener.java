@@ -90,12 +90,9 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 
 	private void readPackageDeclaration(CompilationUnitContext ctx) {
 		findChildByClass(ctx, PackageDeclarationContext.class)
-				.ifPresent(//
+				.ifPresent(
 						pdc -> findChildByClass(pdc, PackageNameContext.class)
-								.ifPresent(//
-										pnc -> compilationUnit.setPackageName(pnc.getText()) //
-								) //
-				);
+								.ifPresent(pnc -> compilationUnit.setPackageName(pnc.getText())));
 	}
 
 	private void readImportDeclarations(CompilationUnitContext ctx) {
@@ -103,57 +100,47 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 			for (SingleStaticImportDeclarationContext ssidc : findChildsByClass(
 					idc,
 					SingleStaticImportDeclarationContext.class)) {
-				findChildByClass(ssidc, TypeNameContext.class)
-						.ifPresent( //
-								tnc -> {
-									List<TerminalNodeImpl> tnis = findChildsByClass(ssidc, TerminalNodeImpl.class);
-									compilationUnit
-											.addImportDeclarations( //
-													new ImportDeclaration() //
-															.setImportedObject(tnis.get(tnis.size() - 2).getText()) //
-															.setQualifiedName(tnc.getText()) //
-															.setStaticImport(true));
-								} //
-						);
+				findChildByClass(ssidc, TypeNameContext.class).ifPresent(tnc -> {
+					List<TerminalNodeImpl> tnis = findChildsByClass(ssidc, TerminalNodeImpl.class);
+					compilationUnit
+							.addImportDeclarations(
+									new ImportDeclaration()
+											.setImportedObject(tnis.get(tnis.size() - 2).getText())
+											.setQualifiedName(tnc.getText())
+											.setStaticImport(true));
+				});
 			}
 			for (StaticImportOnDemandDeclarationContext sioddc : findChildsByClass(
 					idc,
 					StaticImportOnDemandDeclarationContext.class)) {
 				findChildByClass(sioddc, TypeNameContext.class)
-						.ifPresent( //
+						.ifPresent(
 								tnc -> compilationUnit
-										.addImportDeclarations( //
-												new ImportDeclaration() //
-														.setQualifiedName(tnc.getText()) //
-														.setSingleTypeImport(false) //
-														.setStaticImport(true) //
-										) //
-						);
+										.addImportDeclarations(
+												new ImportDeclaration()
+														.setQualifiedName(tnc.getText())
+														.setSingleTypeImport(false)
+														.setStaticImport(true)));
 			}
 			for (SingleTypeImportDeclarationContext stidc : findChildsByClass(
 					idc,
 					SingleTypeImportDeclarationContext.class)) {
 				findChildByClass(stidc, TypeNameContext.class)
-						.ifPresent( //
+						.ifPresent(
 								tnc -> compilationUnit
-										.addImportDeclarations( //
-												new ImportDeclaration() //
-														.setQualifiedName(tnc.getText()) //
-										) //
-						);
+										.addImportDeclarations(
+												new ImportDeclaration().setQualifiedName(tnc.getText())));
 			}
 			for (TypeImportOnDemandDeclarationContext tioddc : findChildsByClass(
 					idc,
 					TypeImportOnDemandDeclarationContext.class)) {
 				findChildByClass(tioddc, PackageOrTypeNameContext.class)
-						.ifPresent( //
+						.ifPresent(
 								potnc -> compilationUnit
-										.addImportDeclarations( //
-												new ImportDeclaration() //
-														.setQualifiedName(potnc.getText()) //
-														.setSingleTypeImport(false) //
-										) //
-						);
+										.addImportDeclarations(
+												new ImportDeclaration()
+														.setQualifiedName(potnc.getText())
+														.setSingleTypeImport(false)));
 			}
 		}
 	}
@@ -281,12 +268,11 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 						for (String name : getVariableNames(fdc)) {
 							l
 									.add(
-											new FieldDeclaration() //
-													.addAnnotations(annotations) //
-													.addModifiers(modifier) //
-													.setName(name) //
-													.setType(type) //
-									);
+											new FieldDeclaration()
+													.addAnnotations(annotations)
+													.addModifiers(modifier)
+													.setName(name)
+													.setType(type));
 						}
 					}
 				}
