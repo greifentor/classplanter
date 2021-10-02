@@ -3,6 +3,7 @@ package de.ollie.blueprints.codereader.java;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -167,9 +168,11 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 										ClassDeclaration classDeclaration = new ClassDeclaration()
 												.addAnnotations(getAnnotations(ncdc, ClassModifierContext.class))
 												.addFields(getFields(ncdc))
+												.addImplementedInterfaceNames(getImplementedInterfaceNames(ncdc))
 												.addMethods(getMethods(ncdc))
 												.addModifiers(getModifiers(ncdc, ClassModifierContext.class))
-												.setName(tni.getText());
+												.setName(tni.getText())
+												.setSuperClassName(getSuperClassName(ncdc));
 										this.compilationUnit.addTypeDeclarations(classDeclaration);
 									},
 									() -> {
@@ -188,6 +191,7 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 								.addAnnotations(getAnnotations(nidc, InterfaceModifierContext.class))
 								.addMethods(getMethods(nidc))
 								.addModifiers(getModifiers(nidc, InterfaceModifierContext.class))
+								.addSuperInterfaceNames(getSuperInterfaceNames(nidc))
 								.setName(tni.getText());
 						this.compilationUnit.addTypeDeclarations(interfaceDeclaration);
 					}, () -> {
@@ -205,30 +209,24 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 		for (T mc : findChildsByClass(prc, cls)) {
 			for (AnnotationContext ac : findChildsByClass(mc, AnnotationContext.class)) {
 				findChildByClass(ac, MarkerAnnotationContext.class)
-						.ifPresent( //
+						.ifPresent(
 								mac -> findChildByClass(mac, TypeNameContext.class)
-										.ifPresent( //
-												tnc -> l.add(new Annotation().setName(tnc.getText())) //
-										) //
-						);
+										.ifPresent(tnc -> l.add(new Annotation().setName(tnc.getText()))));
 				findChildByClass(ac, SingleElementAnnotationContext.class)
-						.ifPresent( //
+						.ifPresent(
 								seac -> findChildByClass(seac, TypeNameContext.class)
-										.ifPresent( //
+										.ifPresent(
 												tnc -> l
 														.add(
 																new Annotation()
 																		.setName(tnc.getText())
-																		.setValue( //
+																		.setValue(
 																				findChildByClass(
 																						seac,
-																						ElementValueContext.class) //
+																						ElementValueContext.class)
 																								.map(
-																										ElementValueContext::getText) //
-																								.get() //
-																		)) //
-										) //
-						);
+																										ElementValueContext::getText)
+																								.get()))));
 				findChildByClass(ac, NormalAnnotationContext.class)
 						.ifPresent( //
 								nac -> findChildByClass(nac, TypeNameContext.class)
@@ -465,6 +463,41 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 			}
 		}
 		return l;
+	}
+
+	private String getSuperClassName(NormalClassDeclarationContext ncdc) {
+		if (ncdc.superclass() != null) {
+			return ncdc.superclass().classType().getText();
+		}
+		return null;
+	}
+
+	private String[] getImplementedInterfaceNames(NormalClassDeclarationContext ncdc) {
+		if (ncdc.superinterfaces() != null) {
+			return ncdc
+					.superinterfaces()
+					.interfaceTypeList()
+					.interfaceType()
+					.stream()
+					.map(interfaceType -> interfaceType.classType().Identifier().getText())
+					.collect(Collectors.toList())
+					.toArray(new String[0]);
+		}
+		return new String[0];
+	}
+
+	private String[] getSuperInterfaceNames(NormalInterfaceDeclarationContext nidc) {
+		if (nidc.extendsInterfaces() != null) {
+			return nidc
+					.extendsInterfaces()
+					.interfaceTypeList()
+					.interfaceType()
+					.stream()
+					.map(interfaceType -> interfaceType.classType().Identifier().getText())
+					.collect(Collectors.toList())
+					.toArray(new String[0]);
+		}
+		return new String[0];
 	}
 
 //	static void printChildren(String indent, ParserRuleContext prc) {

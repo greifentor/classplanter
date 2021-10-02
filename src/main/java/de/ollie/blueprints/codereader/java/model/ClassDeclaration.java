@@ -19,9 +19,11 @@ public class ClassDeclaration implements TypeDeclaration {
 
 	private List<Annotation> annotations = new ArrayList<>();
 	private List<FieldDeclaration> fields = new ArrayList<>();
+	private List<String> implementedInterfaceNames = new ArrayList<>();
 	private List<MethodDeclaration> methods = new ArrayList<>();
 	private List<Modifier> modifiers = new ArrayList<>();
 	private String name;
+	private String superClassName;
 
 	public ClassDeclaration addAnnotations(Annotation... annotations) {
 		for (Annotation annotation : annotations) {
@@ -33,6 +35,13 @@ public class ClassDeclaration implements TypeDeclaration {
 	public ClassDeclaration addFields(FieldDeclaration... fields) {
 		for (FieldDeclaration field : fields) {
 			this.fields.add(field);
+		}
+		return this;
+	}
+
+	public ClassDeclaration addImplementedInterfaceNames(String... implementedInterfaceNames) {
+		for (String implementedInterfaceName : implementedInterfaceNames) {
+			this.implementedInterfaceNames.add(implementedInterfaceName);
 		}
 		return this;
 	}

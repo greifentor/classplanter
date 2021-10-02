@@ -67,6 +67,25 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForImplementedInterfaces_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/InterfaceImplementations.plantuml"));
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/interface-implementations",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }

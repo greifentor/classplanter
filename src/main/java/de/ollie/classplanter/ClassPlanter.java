@@ -81,8 +81,10 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 						typeDeclaration -> types
 								.add(
 										new TypeData()
+												.addSuperInterfaceNames(getSuperInterfaceNames(typeDeclaration))
 												.setClassName(typeDeclaration.getName())
 												.setPackageName(compilationUnit.getPackageName())
+												.setSuperClassName(getSuperClassName(typeDeclaration))
 												.setType(getType(typeDeclaration))));
 	}
 
@@ -98,6 +100,13 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 		return Type.UNKNOWN;
 	}
 
+	private String getSuperClassName(TypeDeclaration typeDeclaration) {
+		if (typeDeclaration instanceof ClassDeclaration) {
+			return ((ClassDeclaration) typeDeclaration).getSuperClassName();
+		}
+		return null;
+	}
+
 	public List<TypeData> getClasses() {
 		return types
 				.stream()
@@ -105,6 +114,15 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 						typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
 								|| (typeData.getType() == Type.INTERFACE))
 				.collect(Collectors.toList());
+	}
+
+	public String[] getSuperInterfaceNames(TypeDeclaration typeDeclaration) {
+		if (typeDeclaration instanceof ClassDeclaration) {
+			return ((ClassDeclaration) typeDeclaration).getImplementedInterfaceNames().toArray(new String[0]);
+		} else if (typeDeclaration instanceof InterfaceDeclaration) {
+			return ((InterfaceDeclaration) typeDeclaration).getSuperInterfaceNames().toArray(new String[0]);
+		}
+		return new String[0];
 	}
 
 }
@@ -128,7 +146,10 @@ class PlantUMLClassDiagramCreator {
 				.sorted(
 						(typeData0,
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
-				.map(typeData -> getTypeKeyWord(typeData) + typeData.getClassName() + " {\n}\n")
+				.map(
+						typeData -> getTypeKeyWord(typeData) + typeData.getClassName()
+								+ getSuperClassExtension(typeData) + getSuperInterfaceImplementations(typeData)
+								+ " {\n}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
 	}
@@ -138,6 +159,16 @@ class PlantUMLClassDiagramCreator {
 			return "interface ";
 		}
 		return (typeData.getType() == Type.ABSTRACT_CLASS ? "abstract " : "") + "class ";
+	}
+
+	private String getSuperClassExtension(TypeData typeData) {
+		return typeData.getSuperClassName() != null ? " extends " + typeData.getSuperClassName() : "";
+	}
+
+	private String getSuperInterfaceImplementations(TypeData typeData) {
+		String interfaceNames =
+				typeData.getSuperInterfaceNames().stream().reduce((s0, s1) -> s0 + ", " + s1).orElse("");
+		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
 	}
 
 }

@@ -6,7 +6,7 @@ class SimpleClass1 {
 class SimpleClass2 {
 }
 
-class SimpleClass3 {
+class SimpleClass3 extends SimpleClass4 {
 }
 
 abstract class SimpleClass4 {

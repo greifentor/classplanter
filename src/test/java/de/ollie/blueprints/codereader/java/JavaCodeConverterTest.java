@@ -16,6 +16,7 @@ import de.ollie.blueprints.codereader.java.model.ElementValuePair;
 import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
 import de.ollie.blueprints.codereader.java.model.FormalParameter;
 import de.ollie.blueprints.codereader.java.model.ImportDeclaration;
+import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 import de.ollie.blueprints.codereader.java.model.MethodDeclaration;
 import de.ollie.blueprints.codereader.java.model.Modifier;
 
@@ -432,12 +433,13 @@ public class JavaCodeConverterTest {
 		CompilationUnit expected = new CompilationUnit() //
 				.addTypeDeclarations( //
 						new ClassDeclaration() //
-								.addFields(new FieldDeclaration() //
-										.addModifiers( //
-												Modifier.PRIVATE //
-										) //
-										.setName("member") //
-										.setType("int") //
+								.addFields(
+										new FieldDeclaration() //
+												.addModifiers( //
+														Modifier.PRIVATE //
+												) //
+												.setName("member") //
+												.setType("int") //
 								) //
 								.addModifiers( //
 										Modifier.PUBLIC //
@@ -512,22 +514,24 @@ public class JavaCodeConverterTest {
 		CompilationUnit expected = new CompilationUnit() //
 				.addTypeDeclarations( //
 						new ClassDeclaration() //
-								.addFields(new FieldDeclaration() //
-										.addAnnotations( //
-												new Annotation() //
-														.addElementValues(new ElementValuePair() //
-																.setKey("name") //
-																.setValue("\"annotationName\"") //
-														) //
-														.setName("AnAnnotation"), //
-												new Annotation() //
-														.setName("AnotherAnnotation") //
-										) //
-										.addModifiers( //
-												Modifier.PRIVATE //
-										) //
-										.setName("member") //
-										.setType("int") //
+								.addFields(
+										new FieldDeclaration() //
+												.addAnnotations( //
+														new Annotation() //
+																.addElementValues(
+																		new ElementValuePair() //
+																				.setKey("name") //
+																				.setValue("\"annotationName\"") //
+																) //
+																.setName("AnAnnotation"), //
+														new Annotation() //
+																.setName("AnotherAnnotation") //
+												) //
+												.addModifiers( //
+														Modifier.PRIVATE //
+												) //
+												.setName("member") //
+												.setType("int") //
 								) //
 								.addModifiers( //
 										Modifier.PUBLIC //
@@ -557,10 +561,11 @@ public class JavaCodeConverterTest {
 		CompilationUnit expected = new CompilationUnit() //
 				.addTypeDeclarations( //
 						new ClassDeclaration() //
-								.addMethods(new MethodDeclaration() //
-										.addModifiers(Modifier.PUBLIC) //
-										.setName("AMethod") //
-										.setReturnType("void") //
+								.addMethods(
+										new MethodDeclaration() //
+												.addModifiers(Modifier.PUBLIC) //
+												.setName("AMethod") //
+												.setReturnType("void") //
 								) //
 								.addModifiers( //
 										Modifier.PUBLIC //
@@ -590,20 +595,22 @@ public class JavaCodeConverterTest {
 		CompilationUnit expected = new CompilationUnit() //
 				.addTypeDeclarations( //
 						new ClassDeclaration() //
-								.addMethods(new MethodDeclaration() //
-										.addAnnotations( //
-												new Annotation() //
-														.setName("Getter"), //
-												new Annotation() //
-														.addElementValues(new ElementValuePair() //
-																.setKey("parameter") //
-																.setValue("4711") //
-														) //
-														.setName("AnAnnotation") //
-										) //
-										.addModifiers(Modifier.PUBLIC) //
-										.setName("AMethod") //
-										.setReturnType("void") //
+								.addMethods(
+										new MethodDeclaration() //
+												.addAnnotations( //
+														new Annotation() //
+																.setName("Getter"), //
+														new Annotation() //
+																.addElementValues(
+																		new ElementValuePair() //
+																				.setKey("parameter") //
+																				.setValue("4711") //
+																) //
+																.setName("AnAnnotation") //
+												) //
+												.addModifiers(Modifier.PUBLIC) //
+												.setName("AMethod") //
+												.setReturnType("void") //
 								) //
 								.addModifiers( //
 										Modifier.PUBLIC //
@@ -633,28 +640,30 @@ public class JavaCodeConverterTest {
 		CompilationUnit expected = new CompilationUnit() //
 				.addTypeDeclarations( //
 						new ClassDeclaration() //
-								.addMethods(new MethodDeclaration() //
-										.addModifiers(Modifier.PUBLIC) //
-										.addFormalParameters( //
-												new FormalParameter() //
-														.setName("aParam") //
-														.setType("int"), //
-												new FormalParameter() //
-														.addAnnotations( //
-																new Annotation() //
-																		.setName("Name"), //
-																new Annotation() //
-																		.addElementValues(new ElementValuePair() //
-																				.setKey("name") //
-																				.setValue("\"id\"") //
-																		) //
-																		.setName("RequestParam") //
-														) //
-														.setName("name") //
-														.setType("String") //
-										) //
-										.setName("AMethod") //
-										.setReturnType("void") //
+								.addMethods(
+										new MethodDeclaration() //
+												.addModifiers(Modifier.PUBLIC) //
+												.addFormalParameters( //
+														new FormalParameter() //
+																.setName("aParam") //
+																.setType("int"), //
+														new FormalParameter() //
+																.addAnnotations( //
+																		new Annotation() //
+																				.setName("Name"), //
+																		new Annotation() //
+																				.addElementValues(
+																						new ElementValuePair() //
+																								.setKey("name") //
+																								.setValue("\"id\"") //
+																				) //
+																				.setName("RequestParam") //
+																) //
+																.setName("name") //
+																.setType("String") //
+												) //
+												.setName("AMethod") //
+												.setReturnType("void") //
 								) //
 								.addModifiers( //
 										Modifier.PUBLIC //
@@ -664,6 +673,65 @@ public class JavaCodeConverterTest {
 		;
 		// Run
 		CompilationUnit returned = unitUnderTest.convert(simpleClassFileContent);
+		// Check
+		assertEquals(expected, returned);
+	}
+
+	@DisplayName("Returns correct compilation unit passing a class file with extends.")
+	@Test
+	void simpleClassWithExtendsPassed_ReturnsACorrectCompilationUnit() {
+		// Prepare
+		String simpleClassFileContent = "" //
+				+ "public class AClass extends BClass {\n" //
+				+ "}";
+		CompilationUnit expected = new CompilationUnit()
+				.addTypeDeclarations(
+						new ClassDeclaration()
+								.addModifiers(Modifier.PUBLIC)
+								.setName("AClass")
+								.setSuperClassName("BClass"));
+		// Run
+		CompilationUnit returned = unitUnderTest.convert(simpleClassFileContent);
+		// Check
+		assertEquals(expected, returned);
+	}
+
+	@DisplayName("Returns correct compilation unit passing a class file with implements.")
+	@Test
+	void simpleClassWithImplementsPassed_ReturnsACorrectCompilationUnit() {
+		// Prepare
+		String simpleClassFileContent = "" //
+				+ "public class AClass implements AnInterface, AnotherInterface<DINGS> {\n" //
+				+ "}";
+		CompilationUnit expected = new CompilationUnit()
+				.addTypeDeclarations(
+						new ClassDeclaration()
+								.addModifiers(Modifier.PUBLIC)
+								.setName("AClass")
+								.addImplementedInterfaceNames("AnInterface", "AnotherInterface"));
+		// Run
+		CompilationUnit returned = unitUnderTest.convert(simpleClassFileContent);
+		// Check
+		System.out.println(expected);
+		System.out.println(returned);
+		assertEquals(expected, returned);
+	}
+
+	@DisplayName("Returns correct compilation unit passing an interface file with extends.")
+	@Test
+	void simpleInterfaceWithExtendsPassed_ReturnsACorrectCompilationUnit() {
+		// Prepare
+		String simpleInterfaceFileContent = "" //
+				+ "public interface AnInterface extends AnotherInterface {\n" //
+				+ "}";
+		CompilationUnit expected = new CompilationUnit()
+				.addTypeDeclarations(
+						new InterfaceDeclaration()
+								.addModifiers(Modifier.PUBLIC)
+								.addSuperInterfaceNames("AnotherInterface")
+								.setName("AnInterface"));
+		// Run
+		CompilationUnit returned = unitUnderTest.convert(simpleInterfaceFileContent);
 		// Check
 		assertEquals(expected, returned);
 	}

@@ -1,0 +1,9 @@
+@startuml
+
+class AClass implements AnInterface, AThirdInterface {
+}
+
+interface AnInterface implements AnotherInterface, ASecondInterface {
+}
+
+@enduml

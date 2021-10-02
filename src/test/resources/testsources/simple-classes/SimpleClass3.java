@@ -1,4 +1,4 @@
 package test.pack.age;
 
-public class SimpleClass3 {
+public class SimpleClass3 extends SimpleClass4 {
 }

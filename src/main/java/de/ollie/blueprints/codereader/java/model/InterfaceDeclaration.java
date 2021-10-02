@@ -22,6 +22,7 @@ public class InterfaceDeclaration implements TypeDeclaration {
 	private List<MethodDeclaration> methods = new ArrayList<>();
 	private List<Modifier> modifiers = new ArrayList<>();
 	private String name;
+	private List<String> superInterfaceNames = new ArrayList<>();
 
 	public InterfaceDeclaration addAnnotations(Annotation... annotations) {
 		for (Annotation annotation : annotations) {
@@ -47,6 +48,13 @@ public class InterfaceDeclaration implements TypeDeclaration {
 	public InterfaceDeclaration addModifiers(Modifier... modifiers) {
 		for (Modifier modifier : modifiers) {
 			this.modifiers.add(modifier);
+		}
+		return this;
+	}
+
+	public InterfaceDeclaration addSuperInterfaceNames(String... superInterfaceNames) {
+		for (String superInterfaceName : superInterfaceNames) {
+			this.superInterfaceNames.add(superInterfaceName);
 		}
 		return this;
 	}
