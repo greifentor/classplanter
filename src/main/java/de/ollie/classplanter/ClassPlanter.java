@@ -6,7 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -45,6 +47,7 @@ public class ClassPlanter {
 				traversal.addFileFoundListener(fileFoundListener);
 				traversal.traverse();
 				OutputConfiguration outputConfiguration = new OutputConfiguration()
+						.setExplicitPackages(readExplicitPackageNamesFromProperties())
 						.setPackageMode(
 								PackageMode.valueOf(System.getProperty("classplanter.output.packagemode", "NONE")));
 				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, outputConfiguration);
@@ -62,6 +65,19 @@ public class ClassPlanter {
 		} catch (ParseException pe) {
 			System.out.println(pe.getMessage());
 		}
+	}
+
+	private static List<String> readExplicitPackageNamesFromProperties() {
+		String explicitPackageNames = System.getProperty("classplanter.include.packages");
+		if (explicitPackageNames != null) {
+			StringTokenizer st = new StringTokenizer(explicitPackageNames, ",");
+			List<String> explicitPackages = new ArrayList<>();
+			while (st.hasMoreTokens()) {
+				explicitPackages.add(st.nextToken());
+			}
+			return explicitPackages;
+		}
+		return null;
 	}
 
 }
@@ -226,9 +242,10 @@ class PlantUMLClassDiagramCreator {
 	}
 
 	private String getClassCode(List<TypeData> classes, OutputConfiguration outputConfiguration) {
+		Stream<TypeData> filteredClasses =
+				classes.stream().filter(typeData -> isExplicitPackage(typeData, outputConfiguration));
 		if (outputConfiguration.getPackageMode() == PackageMode.FLAT) {
-			List<TypeData> types = classes
-					.stream()
+			List<TypeData> types = filteredClasses
 					.sorted(
 							(typeData0, typeData1) -> typeData0
 									.getQualifiedName()
@@ -249,8 +266,7 @@ class PlantUMLClassDiagramCreator {
 			}
 			return code + "}\n";
 		}
-		return classes
-				.stream()
+		return filteredClasses
 				.sorted(
 						(typeData0,
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
@@ -260,6 +276,16 @@ class PlantUMLClassDiagramCreator {
 								+ " {\n}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
+	}
+
+	private boolean isExplicitPackage(TypeData typeData, OutputConfiguration outputConfiguration) {
+		if (outputConfiguration.getExplicitPackages() == null) {
+			return true;
+		}
+		return outputConfiguration
+				.getExplicitPackages()
+				.stream()
+				.anyMatch(packageName -> packageName.equals(typeData.getPackageName()));
 	}
 
 	private String getTypeKeyWord(TypeData typeData) {

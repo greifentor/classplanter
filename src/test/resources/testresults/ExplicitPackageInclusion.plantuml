@@ -1,0 +1,9 @@
+@startuml
+
+class AClass {
+}
+
+class CClass {
+}
+
+@enduml

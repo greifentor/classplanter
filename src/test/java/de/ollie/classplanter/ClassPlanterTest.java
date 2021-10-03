@@ -146,6 +146,31 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersWithExplicitPackageInclusion_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/ExplicitPackageInclusion.plantuml"));
+			System.setProperty("classplanter.include.packages", "a.pack.age.one,a.pack.age.three");
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/explicit-package-inclusion",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.clearProperty("classplanter.include.packages");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }

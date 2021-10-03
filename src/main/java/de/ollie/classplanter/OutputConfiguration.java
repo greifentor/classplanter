@@ -1,5 +1,7 @@
 package de.ollie.classplanter;
 
+import java.util.List;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,6 +17,7 @@ public class OutputConfiguration {
 		NONE;
 	}
 
+	private List<String> explicitPackages;
 	private PackageMode packageMode;
 
 }
