@@ -205,7 +205,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 				return type.substring(0, type.length() - 1).replace(typePrefix, "");
 			}
 		}
-		return type;
+		return type.replace("<", "").replace(">", "").replace(",", "");
 	}
 
 }

@@ -5,4 +5,6 @@ class AClass {
 
 AClass --> "*" CClass
 
+AClass --> MapStringObject
+
 @enduml
