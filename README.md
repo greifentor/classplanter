@@ -45,6 +45,10 @@ After building the project there should be a JAR file in the projects target fol
 
 This could be started by ``java -jar {JAR file name}`` with the parameters as described below:
 
+### Memory
+
+Setting ``-Xmx4g`` option to enhance memory is recommended.
+
 ### Source File Folder "-sf {folder name}"
 
 This option allows to define the folder whose JAVA files are to read for the diagram.
