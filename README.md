@@ -52,3 +52,22 @@ This option allows to define the folder whose JAVA files are to read for the dia
 ### Target File Name "-tf {file name}"
 
 Set the target file name via this option. If not set, a file "result.plantuml" in the current folder will be created.
+
+
+
+## How to Configure
+
+The output can be configured by setting properties.
+
+### Having Packages in the Diagram
+
+To have information about the packages in the diagram, set a package mode:
+
+```
+property name: classplanter.output.packagemode
+values: FLAT, NONE
+```
+
+**FLAT**: creates a box for every package (also if one package is included in another one.
+
+**NONE**: ignores packages completely in the diagram.

@@ -20,6 +20,7 @@ import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
 import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 import de.ollie.blueprints.codereader.java.model.Modifier;
 import de.ollie.blueprints.codereader.java.model.TypeDeclaration;
+import de.ollie.classplanter.OutputConfiguration.PackageMode;
 import de.ollie.classplanter.model.AssociationData;
 import de.ollie.classplanter.model.AssociationData.AssociationType;
 import de.ollie.classplanter.model.ClassKeyData;
@@ -43,7 +44,10 @@ public class ClassPlanter {
 				ClassPlanterFileFoundListener fileFoundListener = new ClassPlanterFileFoundListener();
 				traversal.addFileFoundListener(fileFoundListener);
 				traversal.traverse();
-				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener);
+				OutputConfiguration outputConfiguration = new OutputConfiguration()
+						.setPackageMode(
+								PackageMode.valueOf(System.getProperty("classplanter.output.packagemode", "NONE")));
+				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, outputConfiguration);
 				Path targetFilePath = Path.of("result.plantuml");
 				if (cmd.hasOption("tf")) {
 					targetFilePath = Path.of(cmd.getOptionValue("tf"));
@@ -198,7 +202,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 	private String removeManyType(String type) {
 		for (String typePrefix : MANY_TYPE_NAMES) {
 			if (type.startsWith(typePrefix)) {
-				return type.substring(0, type.length()-1).replace(typePrefix, "");
+				return type.substring(0, type.length() - 1).replace(typePrefix, "");
 			}
 		}
 		return type;
@@ -208,7 +212,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 
 class PlantUMLClassDiagramCreator {
 
-	public String create(ClassPlanterFileFoundListener fileFoundListener) {
+	public String create(ClassPlanterFileFoundListener fileFoundListener, OutputConfiguration outputConfiguration) {
 		String code = "@startuml\n" //
 				+ "\n" //
 				+ "{0}" //
@@ -216,12 +220,35 @@ class PlantUMLClassDiagramCreator {
 				+ "{1}" //
 				+ "@enduml" //
 		;
-		code = code.replace("{0}", getClassCode(fileFoundListener.getClasses()));
+		code = code.replace("{0}", getClassCode(fileFoundListener.getClasses(), outputConfiguration));
 		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations()));
 		return code;
 	}
 
-	private String getClassCode(List<TypeData> classes) {
+	private String getClassCode(List<TypeData> classes, OutputConfiguration outputConfiguration) {
+		if (outputConfiguration.getPackageMode() == PackageMode.FLAT) {
+			List<TypeData> types = classes
+					.stream()
+					.sorted(
+							(typeData0, typeData1) -> typeData0
+									.getQualifiedName()
+									.compareToIgnoreCase(typeData1.getQualifiedName()))
+					.collect(Collectors.toList());
+			String code = "";
+			String previousPackageName = "";
+			for (TypeData typeData : types) {
+				if (!previousPackageName.equals(typeData.getPackageName())) {
+					if (!previousPackageName.equals("")) {
+						code += "}\n\n";
+					}
+					previousPackageName = typeData.getPackageName();
+					code += "package " + typeData.getPackageName() + " {\n\n";
+				}
+				code += "\t" + getTypeKeyWord(typeData) + typeData.getClassName() + getSuperClassExtension(typeData)
+						+ getSuperInterfaceImplementations(typeData) + " {\n\t}\n\n";
+			}
+			return code + "}\n";
+		}
 		return classes
 				.stream()
 				.sorted(

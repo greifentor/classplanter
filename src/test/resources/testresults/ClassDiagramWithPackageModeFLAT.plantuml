@@ -1,0 +1,25 @@
+@startuml
+
+package a.test.pack.age.one {
+
+	class AClass {
+	}
+
+	interface AnInterface {
+	}
+
+	class BClass extends AClass {
+	}
+
+}
+
+package a.test.pack.age.two {
+
+	class CClass implements AnInterface {
+	}
+
+}
+
+CClass --> BClass
+
+@enduml

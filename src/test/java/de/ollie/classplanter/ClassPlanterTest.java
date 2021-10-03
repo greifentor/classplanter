@@ -121,6 +121,31 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForAClassDiagramWithPackageModeFLAT_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/ClassDiagramWithPackageModeFLAT.plantuml"));
+			System.setProperty("classplanter.output.packagemode", "FLAT");
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/class-diagram-package-mode-FLAT",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.setProperty("classplanter.output.packagemode", "NONE");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }
