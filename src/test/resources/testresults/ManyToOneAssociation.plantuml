@@ -7,4 +7,6 @@ AClass --> "*" CClass
 
 AClass --> MapStringObject
 
+AClass --> StringArr
+
 @enduml
