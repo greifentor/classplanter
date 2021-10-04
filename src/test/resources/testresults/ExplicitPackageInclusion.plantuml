@@ -6,4 +6,6 @@ class AClass {
 class CClass {
 }
 
+CClass --> AClass
+
 @enduml

@@ -75,3 +75,12 @@ values: FLAT, NONE
 **FLAT**: creates a box for every package (also if one package is included in another one.
 
 **NONE**: ignores packages completely in the diagram.
+
+### Having Explicitly Included Packages
+
+Setting this property limits included classes to those contained in the passed package(s). It is possible to configure several package names comma separated. Only full matching packages will be respected.
+
+```
+property name: classplanter.input.include.packages
+values: PackageName[,PackageName]
+```

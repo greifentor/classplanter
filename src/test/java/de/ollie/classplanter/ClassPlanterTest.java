@@ -152,7 +152,7 @@ public class ClassPlanterTest {
 			// Prepare
 			String expected =
 					Files.readString(Path.of("src/test/resources/testresults/ExplicitPackageInclusion.plantuml"));
-			System.setProperty("classplanter.include.packages", "a.pack.age.one,a.pack.age.three");
+			System.setProperty("classplanter.input.include.packages", "a.pack.age.one,a.pack.age.three");
 			// Run
 			try {
 				ClassPlanter
@@ -165,7 +165,7 @@ public class ClassPlanterTest {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.clearProperty("classplanter.include.packages");
+			System.clearProperty("classplanter.input.include.packages");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);

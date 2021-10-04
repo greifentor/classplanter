@@ -19,6 +19,7 @@ import de.ollie.blueprints.codereader.java.JavaCodeConverter;
 import de.ollie.blueprints.codereader.java.model.ClassDeclaration;
 import de.ollie.blueprints.codereader.java.model.CompilationUnit;
 import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
+import de.ollie.blueprints.codereader.java.model.ImportDeclaration;
 import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 import de.ollie.blueprints.codereader.java.model.Modifier;
 import de.ollie.blueprints.codereader.java.model.TypeDeclaration;
@@ -68,7 +69,7 @@ public class ClassPlanter {
 	}
 
 	private static List<String> readExplicitPackageNamesFromProperties() {
-		String explicitPackageNames = System.getProperty("classplanter.include.packages");
+		String explicitPackageNames = System.getProperty("classplanter.input.include.packages");
 		if (explicitPackageNames != null) {
 			StringTokenizer st = new StringTokenizer(explicitPackageNames, ",");
 			List<String> explicitPackages = new ArrayList<>();
@@ -122,10 +123,11 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 			return;
 		}
 		CompilationUnit compilationUnit = new JavaCodeConverter().convert(fileContent);
+		List<TypeData> compilationUnitMembers = new ArrayList<>();
 		compilationUnit
 				.getTypeDeclarations()
 				.forEach(
-						typeDeclaration -> types
+						typeDeclaration -> compilationUnitMembers
 								.add(
 										new TypeData()
 												.addSuperInterfaceNames(getSuperInterfaceNames(typeDeclaration))
@@ -133,9 +135,17 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 												.setPackageName(compilationUnit.getPackageName())
 												.setSuperClassName(getSuperClassName(typeDeclaration))
 												.setType(getType(typeDeclaration))));
+		types.addAll(compilationUnitMembers);
 		compilationUnit
 				.getTypeDeclarations()
-				.forEach(typeDeclaration -> associations.addAll(getAssociationsOfTypeDeclaration(typeDeclaration)));
+				.forEach(
+						typeDeclaration -> associations
+								.addAll(
+										getAssociationsOfTypeDeclaration(
+												typeDeclaration,
+												compilationUnit.getPackageName(),
+												compilationUnit.getImportDeclarations(),
+												compilationUnitMembers)));
 	}
 
 	private Type getType(TypeDeclaration typeDeclaration) {
@@ -179,7 +189,8 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 		return new String[0];
 	}
 
-	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration) {
+	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
+			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers) {
 		List<AssociationData> associations = new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
@@ -187,15 +198,35 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 					associations
 							.add(
 									new AssociationData()
-											.setFrom(new ClassKeyData().setClassName(typeDeclaration.getName()))
+											.setFrom(
+													new ClassKeyData()
+															.setClassName(typeDeclaration.getName())
+															.setPackageName(typePackageName))
 											.setTo(
 													new ClassKeyData()
-															.setClassName(removeManyType(fieldDeclaration.getType())))
+															.setClassName(removeManyType(fieldDeclaration.getType()))
+															.setPackageName(
+																	getPackageName(
+																			fieldDeclaration.getType(),
+																			compilationUnitMembers,
+																			typePackageName,
+																			importDeclarations)))
 											.setType(getAssociationType(fieldDeclaration.getType())));
 				}
 			}
 		}
 		return associations;
+	}
+
+	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,
+			String compilationUnitPackageName, List<ImportDeclaration> importDeclarations) {
+		return new PackageAgent()
+				.findPackageNameForType(
+						typeName,
+						compilationUnitMembers,
+						compilationUnitPackageName,
+						importDeclarations)
+				.orElse(null);
 	}
 
 	private boolean isClassType(FieldDeclaration fieldDeclaration) {
@@ -237,13 +268,13 @@ class PlantUMLClassDiagramCreator {
 				+ "@enduml" //
 		;
 		code = code.replace("{0}", getClassCode(fileFoundListener.getClasses(), outputConfiguration));
-		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations()));
+		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations(), outputConfiguration));
 		return code;
 	}
 
 	private String getClassCode(List<TypeData> classes, OutputConfiguration outputConfiguration) {
 		Stream<TypeData> filteredClasses =
-				classes.stream().filter(typeData -> isExplicitPackage(typeData, outputConfiguration));
+				classes.stream().filter(typeData -> isExplicitPackage(typeData.getPackageName(), outputConfiguration));
 		if (outputConfiguration.getPackageMode() == PackageMode.FLAT) {
 			List<TypeData> types = filteredClasses
 					.sorted(
@@ -278,14 +309,14 @@ class PlantUMLClassDiagramCreator {
 				.orElse("");
 	}
 
-	private boolean isExplicitPackage(TypeData typeData, OutputConfiguration outputConfiguration) {
+	private boolean isExplicitPackage(String typePackageName, OutputConfiguration outputConfiguration) {
 		if (outputConfiguration.getExplicitPackages() == null) {
 			return true;
 		}
 		return outputConfiguration
 				.getExplicitPackages()
 				.stream()
-				.anyMatch(packageName -> packageName.equals(typeData.getPackageName()));
+				.anyMatch(packageName -> packageName.equals(typePackageName));
 	}
 
 	private String getTypeKeyWord(TypeData typeData) {
@@ -305,9 +336,13 @@ class PlantUMLClassDiagramCreator {
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
 	}
 
-	private String getAssociationCode(List<AssociationData> associations) {
+	private String getAssociationCode(List<AssociationData> associations, OutputConfiguration outputConfiguration) {
 		return associations
 				.stream()
+				.filter(
+						associationData -> isExplicitPackage(
+								associationData.getFrom().getPackageName(),
+								outputConfiguration))
 				.map(associationData -> getAssociation(associationData) + "\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
