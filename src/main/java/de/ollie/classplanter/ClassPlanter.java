@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
@@ -32,6 +34,7 @@ import de.ollie.classplanter.model.TypeData.Type;
 import de.ollie.fstools.traversal.FileFoundEvent;
 import de.ollie.fstools.traversal.FileFoundListener;
 import de.ollie.fstools.traversal.FileSystemTreeTraversal;
+import lombok.RequiredArgsConstructor;
 
 public class ClassPlanter {
 
@@ -42,15 +45,17 @@ public class ClassPlanter {
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
 			if (cmd.hasOption("sf")) {
-				String folderName = cmd.getOptionValue("sf");
-				FileSystemTreeTraversal traversal = new FileSystemTreeTraversal(Path.of(folderName));
-				ClassPlanterFileFoundListener fileFoundListener = new ClassPlanterFileFoundListener();
-				traversal.addFileFoundListener(fileFoundListener);
-				traversal.traverse();
 				OutputConfiguration outputConfiguration = new OutputConfiguration()
 						.setExplicitPackages(readExplicitPackageNamesFromProperties())
 						.setPackageMode(
-								PackageMode.valueOf(System.getProperty("classplanter.output.packagemode", "NONE")));
+								PackageMode.valueOf(System.getProperty("classplanter.output.packagemode", "NONE")))
+						.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.unite.equal.associations"));
+				String folderName = cmd.getOptionValue("sf");
+				FileSystemTreeTraversal traversal = new FileSystemTreeTraversal(Path.of(folderName));
+				ClassPlanterFileFoundListener fileFoundListener =
+						new ClassPlanterFileFoundListener(outputConfiguration);
+				traversal.addFileFoundListener(fileFoundListener);
+				traversal.traverse();
 				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, outputConfiguration);
 				Path targetFilePath = Path.of("result.plantuml");
 				if (cmd.hasOption("tf")) {
@@ -83,6 +88,7 @@ public class ClassPlanter {
 
 }
 
+@RequiredArgsConstructor
 class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private static final List<String> SIMPLE_TYPE_NAMES = List
@@ -105,6 +111,8 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 					"Short",
 					"String");
 	private static final List<String> MANY_TYPE_NAMES = List.of("List<", "Set<", "Stack<");
+
+	private final OutputConfiguration outputConfiguration;
 
 	private List<TypeData> types = new ArrayList<>();
 	private List<AssociationData> associations = new ArrayList<>();
@@ -145,7 +153,8 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 												typeDeclaration,
 												compilationUnit.getPackageName(),
 												compilationUnit.getImportDeclarations(),
-												compilationUnitMembers)));
+												compilationUnitMembers,
+												outputConfiguration)));
 	}
 
 	private Type getType(TypeDeclaration typeDeclaration) {
@@ -190,8 +199,10 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
-			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers) {
-		List<AssociationData> associations = new ArrayList<>();
+			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers,
+			OutputConfiguration outputConfiguration) {
+		Collection<AssociationData> associations =
+				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
 				if (isClassType(fieldDeclaration)) {
@@ -215,7 +226,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 				}
 			}
 		}
-		return associations;
+		return new ArrayList<>(associations);
 	}
 
 	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,

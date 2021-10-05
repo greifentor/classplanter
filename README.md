@@ -84,3 +84,12 @@ Setting this property limits included classes to those contained in the passed p
 property name: classplanter.input.include.packages
 values: PackageName[,PackageName]
 ```
+
+### Unite Equal Associations
+
+To unite equal associations set the property listed below to "true".
+
+```
+property name: classplanter.output.unite.equal.associations
+values: "true" | "false"
+```

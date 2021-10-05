@@ -21,5 +21,6 @@ public class OutputConfiguration {
 
 	private List<String> explicitPackages;
 	private PackageMode packageMode;
+	private boolean uniteEqualAssociations;
 
 }

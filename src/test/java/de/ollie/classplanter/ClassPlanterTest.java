@@ -171,6 +171,31 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersWithUnitEqualAssociationSet_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/UnitedEqualAssociations.plantuml"));
+			System.setProperty("classplanter.output.unite.equal.associations", "true");
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/united-equal-associations",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.clearProperty("classplanter.output.unite.equal.associations");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }
