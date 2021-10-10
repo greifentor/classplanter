@@ -1,0 +1,7 @@
+input:
+  explicitPackages:
+    - de.ollie.classplanter
+    - de.ollie.classplanter.model
+output:
+  packageMode: FLAT
+  uniteEqualAssociations: true

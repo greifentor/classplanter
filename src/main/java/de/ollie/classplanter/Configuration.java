@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Data
 @Generated
-public class OutputConfiguration {
+public class Configuration {
 
 	public enum PackageMode {
 		FLAT,

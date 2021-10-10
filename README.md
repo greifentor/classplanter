@@ -2,7 +2,7 @@
 A tool which allows to create PlantUML class diagramms for whole projects. Classes to include could be filtered by different criteria.
 
 
-## How Will It Work?
+## How Does It Work?
 
 The application reads Java code files from a specified project path and filters the classes to show in the PlantUML
 class diagram by a filter configuration. The filtered classes will be passed to a writer which creates the PlantUML
@@ -49,6 +49,10 @@ This could be started by ``java -jar {JAR file name}`` with the parameters as de
 
 Setting ``-Xmx4g`` option to enhance memory is recommended.
 
+### Source File Folder "-cnf {configuration file name}"
+
+Allows to read a YAML configuration file. The values of the file do override parameters set by properties.
+
 ### Source File Folder "-sf {folder name}"
 
 This option allows to define the folder whose JAVA files are to read for the diagram.
@@ -59,7 +63,7 @@ Set the target file name via this option. If not set, a file "result.plantuml" i
 
 
 
-## How to Configure
+## How to Configure?
 
 The output can be configured by setting properties.
 
@@ -68,7 +72,7 @@ The output can be configured by setting properties.
 To have information about the packages in the diagram, set a package mode:
 
 ```
-property name: classplanter.output.packagemode
+property name: classplanter.output.packageMode
 values: FLAT, NONE
 ```
 
@@ -81,7 +85,7 @@ values: FLAT, NONE
 Setting this property limits included classes to those contained in the passed package(s). It is possible to configure several package names comma separated. Only full matching packages will be respected.
 
 ```
-property name: classplanter.input.include.packages
+property name: classplanter.input.includePackages
 values: PackageName[,PackageName]
 ```
 
@@ -90,6 +94,6 @@ values: PackageName[,PackageName]
 To unite equal associations set the property listed below to "true".
 
 ```
-property name: classplanter.output.unite.equal.associations
+property name: classplanter.output.uniteEqualAssociations
 values: "true" | "false"
 ```

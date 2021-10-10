@@ -25,12 +25,14 @@ import de.ollie.blueprints.codereader.java.model.ImportDeclaration;
 import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 import de.ollie.blueprints.codereader.java.model.Modifier;
 import de.ollie.blueprints.codereader.java.model.TypeDeclaration;
-import de.ollie.classplanter.OutputConfiguration.PackageMode;
+import de.ollie.classplanter.Configuration.PackageMode;
 import de.ollie.classplanter.model.AssociationData;
 import de.ollie.classplanter.model.AssociationData.AssociationType;
 import de.ollie.classplanter.model.ClassKeyData;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
+import de.ollie.classplanter.yaml.YAMLConfigurationAdder;
+import de.ollie.classplanter.yaml.YAMLConfigurationContentFromYamlFileReader;
 import de.ollie.fstools.traversal.FileFoundEvent;
 import de.ollie.fstools.traversal.FileFoundListener;
 import de.ollie.fstools.traversal.FileSystemTreeTraversal;
@@ -40,32 +42,39 @@ public class ClassPlanter {
 
 	public static void main(String[] args) {
 		Options options = new Options();
+		options.addOption("cnf", true, "name of the configuration file.");
 		options.addOption("sf", true, "folder whose files are to read.");
 		options.addOption("tf", true, "name of the target file.");
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
+			String sourceFolderName = null;
 			if (cmd.hasOption("sf")) {
-				OutputConfiguration outputConfiguration = new OutputConfiguration()
-						.setExplicitPackages(readExplicitPackageNamesFromProperties())
-						.setPackageMode(
-								PackageMode.valueOf(System.getProperty("classplanter.output.packagemode", "NONE")))
-						.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.unite.equal.associations"));
-				String folderName = cmd.getOptionValue("sf");
-				FileSystemTreeTraversal traversal = new FileSystemTreeTraversal(Path.of(folderName));
-				ClassPlanterFileFoundListener fileFoundListener =
-						new ClassPlanterFileFoundListener(outputConfiguration);
-				traversal.addFileFoundListener(fileFoundListener);
-				traversal.traverse();
-				String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, outputConfiguration);
-				Path targetFilePath = Path.of("result.plantuml");
-				if (cmd.hasOption("tf")) {
-					targetFilePath = Path.of(cmd.getOptionValue("tf"));
-				}
-				if (Files.exists(targetFilePath)) {
-					Files.delete(targetFilePath);
-				}
-				Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
+				sourceFolderName = cmd.getOptionValue("sf");
 			}
+			Path targetFilePath = Path.of("result.plantuml");
+			if (cmd.hasOption("tf")) {
+				targetFilePath = Path.of(cmd.getOptionValue("tf"));
+			}
+			Configuration configuration = new Configuration()
+					.setExplicitPackages(readExplicitPackageNamesFromProperties())
+					.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
+					.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));
+			if (cmd.hasOption("cnf")) {
+				String configurationFileName = cmd.getOptionValue("cnf");
+				configuration = new YAMLConfigurationAdder()
+						.add(
+								configuration,
+								new YAMLConfigurationContentFromYamlFileReader().read(configurationFileName));
+			}
+			FileSystemTreeTraversal traversal = new FileSystemTreeTraversal(Path.of(sourceFolderName));
+			ClassPlanterFileFoundListener fileFoundListener = new ClassPlanterFileFoundListener(configuration);
+			traversal.addFileFoundListener(fileFoundListener);
+			traversal.traverse();
+			String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, configuration);
+			if (Files.exists(targetFilePath)) {
+				Files.delete(targetFilePath);
+			}
+			Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
 		} catch (IOException ioe) {
 			System.out.println(ioe.getMessage());
 		} catch (ParseException pe) {
@@ -74,7 +83,7 @@ public class ClassPlanter {
 	}
 
 	private static List<String> readExplicitPackageNamesFromProperties() {
-		String explicitPackageNames = System.getProperty("classplanter.input.include.packages");
+		String explicitPackageNames = System.getProperty("classplanter.input.includePackages");
 		if (explicitPackageNames != null) {
 			StringTokenizer st = new StringTokenizer(explicitPackageNames, ",");
 			List<String> explicitPackages = new ArrayList<>();
@@ -112,7 +121,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 					"String");
 	private static final List<String> MANY_TYPE_NAMES = List.of("List<", "Set<", "Stack<");
 
-	private final OutputConfiguration outputConfiguration;
+	private final Configuration outputConfiguration;
 
 	private List<TypeData> types = new ArrayList<>();
 	private List<AssociationData> associations = new ArrayList<>();
@@ -200,7 +209,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
 			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers,
-			OutputConfiguration outputConfiguration) {
+			Configuration outputConfiguration) {
 		Collection<AssociationData> associations =
 				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
@@ -270,7 +279,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 
 class PlantUMLClassDiagramCreator {
 
-	public String create(ClassPlanterFileFoundListener fileFoundListener, OutputConfiguration outputConfiguration) {
+	public String create(ClassPlanterFileFoundListener fileFoundListener, Configuration outputConfiguration) {
 		String code = "@startuml\n" //
 				+ "\n" //
 				+ "{0}" //
@@ -283,7 +292,7 @@ class PlantUMLClassDiagramCreator {
 		return code;
 	}
 
-	private String getClassCode(List<TypeData> classes, OutputConfiguration outputConfiguration) {
+	private String getClassCode(List<TypeData> classes, Configuration outputConfiguration) {
 		Stream<TypeData> filteredClasses =
 				classes.stream().filter(typeData -> isExplicitPackage(typeData.getPackageName(), outputConfiguration));
 		if (outputConfiguration.getPackageMode() == PackageMode.FLAT) {
@@ -320,7 +329,7 @@ class PlantUMLClassDiagramCreator {
 				.orElse("");
 	}
 
-	private boolean isExplicitPackage(String typePackageName, OutputConfiguration outputConfiguration) {
+	private boolean isExplicitPackage(String typePackageName, Configuration outputConfiguration) {
 		if (outputConfiguration.getExplicitPackages() == null) {
 			return true;
 		}
@@ -347,7 +356,7 @@ class PlantUMLClassDiagramCreator {
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
 	}
 
-	private String getAssociationCode(List<AssociationData> associations, OutputConfiguration outputConfiguration) {
+	private String getAssociationCode(List<AssociationData> associations, Configuration outputConfiguration) {
 		return associations
 				.stream()
 				.filter(
