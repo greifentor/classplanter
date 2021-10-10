@@ -1,0 +1,9 @@
+@startuml
+
+class NoUtilityClass {
+}
+
+class UtilityClass << utility class >> {
+}
+
+@enduml

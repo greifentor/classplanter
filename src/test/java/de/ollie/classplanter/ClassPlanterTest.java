@@ -221,6 +221,52 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForAnnotatedUtilityClasses_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/UtilityClass-Annotation.plantuml"));
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/utility-class-annotated",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersForUtilityClassesWithOnlyStaticMethods_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/UtilityClass-StaticMethodsOnly.plantuml"));
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/utility-class-static-methods-only",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }

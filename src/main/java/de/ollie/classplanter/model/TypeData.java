@@ -26,8 +26,16 @@ public class TypeData {
 	private String className;
 	private String packageName;
 	private String superClassName;
+	private List<String> stereotypes = new ArrayList<>();
 	private List<String> superInterfaceNames = new ArrayList<>();
 	private Type type;
+
+	public TypeData addStereotypeNames(String... stereotypeNames) {
+		for (String stereotypeName : stereotypeNames) {
+			this.stereotypes.add(stereotypeName);
+		}
+		return this;
+	}
 
 	public TypeData addSuperInterfaceNames(String... superInterfaceNames) {
 		for (String superInterfaceName : superInterfaceNames) {

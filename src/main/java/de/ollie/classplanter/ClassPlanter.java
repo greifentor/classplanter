@@ -74,6 +74,7 @@ public class ClassPlanter {
 				Files.delete(targetFilePath);
 			}
 			Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
+			System.out.println("wrote result to: " + targetFilePath.toString());
 		} catch (IOException ioe) {
 			System.out.println(ioe.getMessage());
 		} catch (ParseException pe) {
@@ -98,6 +99,8 @@ public class ClassPlanter {
 
 @RequiredArgsConstructor
 class ClassPlanterFileFoundListener implements FileFoundListener {
+
+	private static StereotypeReader stereotypeReader = new StereotypeReader();
 
 	private static final List<String> SIMPLE_TYPE_NAMES = List
 			.of(
@@ -149,6 +152,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 												.addSuperInterfaceNames(getSuperInterfaceNames(typeDeclaration))
 												.setClassName(typeDeclaration.getName())
 												.setPackageName(compilationUnit.getPackageName())
+												.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 												.setSuperClassName(getSuperClassName(typeDeclaration))
 												.setType(getType(typeDeclaration))));
 		types.addAll(compilationUnitMembers);
@@ -237,6 +241,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 										new TypeData()
 												.setClassName(associationData.getTo().getClassName())
 												.setPackageName(associationData.getTo().getPackageName())
+												.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 												.setType(Type.REFERENCED));
 					}
 				}
@@ -322,8 +327,7 @@ class PlantUMLClassDiagramCreator {
 					previousPackageName = typeData.getPackageName();
 					code += "package " + typeData.getPackageName() + " {\n\n";
 				}
-				code += "\t" + getTypeKeyWord(typeData) + typeData.getClassName() + getSuperClassExtension(typeData)
-						+ getSuperInterfaceImplementations(typeData) + " {\n\t}\n\n";
+				code += "\t" + createClassHeader(typeData) + " {\n\t}\n\n";
 			}
 			return code + "}\n";
 		}
@@ -332,12 +336,16 @@ class PlantUMLClassDiagramCreator {
 				.sorted(
 						(typeData0,
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
-				.map(
-						typeData -> getTypeKeyWord(typeData) + typeData.getClassName()
-								+ getSuperClassExtension(typeData) + getSuperInterfaceImplementations(typeData)
-								+ " {\n}\n")
+				.map(typeData -> createClassHeader(typeData) + " {\n}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
+	}
+
+	private String createClassHeader(TypeData typeData) {
+		return getTypeKeyWord(typeData) + typeData.getClassName()
+				+ getSuperClassExtension(typeData)
+				+ getSuperInterfaceImplementations(typeData)
+				+ getStereotypes(typeData);
 	}
 
 	private boolean isExplicitPackage(String typePackageName, Configuration outputConfiguration) {
@@ -365,6 +373,15 @@ class PlantUMLClassDiagramCreator {
 		String interfaceNames =
 				typeData.getSuperInterfaceNames().stream().reduce((s0, s1) -> s0 + ", " + s1).orElse("");
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
+	}
+
+	private String getStereotypes(TypeData typeData) {
+		return typeData
+				.getStereotypes()
+				.stream()
+				.map(s -> " << " + s + " >>")
+				.reduce((s0, s1) -> s0 + ", " + s1)
+				.orElse("");
 	}
 
 	private String getAssociationCode(List<AssociationData> associations, Configuration outputConfiguration) {

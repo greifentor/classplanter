@@ -18,6 +18,7 @@ public class Modifier {
 	public static final Modifier PRIVATE = new Modifier().setType(ModifierType.PRIVATE);
 	public static final Modifier PROTECTED = new Modifier().setType(ModifierType.PROTECTED);
 	public static final Modifier PUBLIC = new Modifier().setType(ModifierType.PUBLIC);
+	public static final Modifier STATIC = new Modifier().setType(ModifierType.STATIC);
 
 	private ModifierType type;
 

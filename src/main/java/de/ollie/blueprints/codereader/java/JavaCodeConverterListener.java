@@ -395,6 +395,8 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 					l.add(Modifier.PROTECTED);
 				} else if (value.equals("public")) {
 					l.add(Modifier.PUBLIC);
+				} else if (value.equals("static")) {
+					l.add(Modifier.STATIC);
 				}
 			}
 		}

@@ -17,6 +17,7 @@ The application is generally able to create a class diagram for a java source pa
 * Respects super classes and implemented interfaces.
 * Creates associations to other classes via attribute references.
 * Identifies many to one relations (of type "List", "Set" and "Stack").
+* Identifies utility classes and sets a stereotype "<< utility class >>" for these classes.
 
 
 ## What Does It NOT Manage?
