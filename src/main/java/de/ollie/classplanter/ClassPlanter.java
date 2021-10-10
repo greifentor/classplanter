@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -190,7 +189,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 				.stream()
 				.filter(
 						typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
-								|| (typeData.getType() == Type.INTERFACE))
+								|| (typeData.getType() == Type.INTERFACE) || (typeData.getType() == Type.REFERENCED))
 				.collect(Collectors.toList());
 	}
 
@@ -215,23 +214,31 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
 				if (isClassType(fieldDeclaration)) {
-					associations
-							.add(
-									new AssociationData()
-											.setFrom(
-													new ClassKeyData()
-															.setClassName(typeDeclaration.getName())
-															.setPackageName(typePackageName))
-											.setTo(
-													new ClassKeyData()
-															.setClassName(removeManyType(fieldDeclaration.getType()))
-															.setPackageName(
-																	getPackageName(
-																			fieldDeclaration.getType(),
-																			compilationUnitMembers,
-																			typePackageName,
-																			importDeclarations)))
-											.setType(getAssociationType(fieldDeclaration.getType())));
+					AssociationData associationData = new AssociationData()
+							.setFrom(
+									new ClassKeyData()
+											.setClassName(typeDeclaration.getName())
+											.setPackageName(typePackageName))
+							.setTo(
+									new ClassKeyData()
+											.setClassName(removeManyType(fieldDeclaration.getType()))
+											.setPackageName(
+													getPackageName(
+															fieldDeclaration.getType(),
+															compilationUnitMembers,
+															typePackageName,
+															importDeclarations)))
+							.setType(getAssociationType(fieldDeclaration.getType()));
+					associations.add(associationData);
+					if ((outputConfiguration.getPackageMode() == PackageMode.FLAT)
+							&& (associationData.getTo().getPackageName() != null)) {
+						types
+								.add(
+										new TypeData()
+												.setClassName(associationData.getTo().getClassName())
+												.setPackageName(associationData.getTo().getPackageName())
+												.setType(Type.REFERENCED));
+					}
 				}
 			}
 		}
@@ -293,10 +300,13 @@ class PlantUMLClassDiagramCreator {
 	}
 
 	private String getClassCode(List<TypeData> classes, Configuration outputConfiguration) {
-		Stream<TypeData> filteredClasses =
-				classes.stream().filter(typeData -> isExplicitPackage(typeData.getPackageName(), outputConfiguration));
+		List<TypeData> filteredClasses = classes
+				.stream()
+				.filter(typeData -> isExplicitPackage(typeData.getPackageName(), outputConfiguration))
+				.collect(Collectors.toList());
 		if (outputConfiguration.getPackageMode() == PackageMode.FLAT) {
 			List<TypeData> types = filteredClasses
+					.stream()
 					.sorted(
 							(typeData0, typeData1) -> typeData0
 									.getQualifiedName()
@@ -318,6 +328,7 @@ class PlantUMLClassDiagramCreator {
 			return code + "}\n";
 		}
 		return filteredClasses
+				.stream()
 				.sorted(
 						(typeData0,
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))

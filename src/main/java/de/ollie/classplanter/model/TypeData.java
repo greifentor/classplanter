@@ -19,6 +19,7 @@ public class TypeData {
 		CLASS,
 		ENUM,
 		INTERFACE,
+		REFERENCED,
 		UNKNOWN;
 	}
 

@@ -20,6 +20,15 @@ package a.test.pack.age.two {
 
 }
 
+package an.other.pack.age {
+
+	class DClass {
+	}
+
+}
+
 CClass --> BClass
+
+CClass --> DClass
 
 @enduml

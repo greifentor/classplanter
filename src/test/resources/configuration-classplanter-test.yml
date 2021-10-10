@@ -1,1 +1,2 @@
-uniteEqualAssociations: true
+output:
+  uniteEqualAssociations: true
