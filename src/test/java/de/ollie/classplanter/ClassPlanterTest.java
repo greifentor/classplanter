@@ -267,6 +267,30 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForMoreThanOneSourceFolder_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/MoreThanOneSourceFolder.plantuml"));
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/more-than-one-source-folder/folder-1,"
+												+ "src/test/resources/testsources/more-than-one-source-folder/folder-2",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }

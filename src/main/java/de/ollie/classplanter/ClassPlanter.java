@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -39,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 
 public class ClassPlanter {
 
+	public static StringListSplitter stringListSplitter = new StringListSplitter();
+
 	public static void main(String[] args) {
 		Options options = new Options();
 		options.addOption("cnf", true, "name of the configuration file.");
@@ -46,9 +47,9 @@ public class ClassPlanter {
 		options.addOption("tf", true, "name of the target file.");
 		try {
 			CommandLine cmd = new DefaultParser().parse(options, args);
-			String sourceFolderName = null;
+			List<String> sourceFolderNames = null;
 			if (cmd.hasOption("sf")) {
-				sourceFolderName = cmd.getOptionValue("sf");
+				sourceFolderNames = stringListSplitter.split(cmd.getOptionValue("sf"));
 			}
 			Path targetFilePath = Path.of("result.plantuml");
 			if (cmd.hasOption("tf")) {
@@ -65,10 +66,12 @@ public class ClassPlanter {
 								configuration,
 								new YAMLConfigurationContentFromYamlFileReader().read(configurationFileName));
 			}
-			FileSystemTreeTraversal traversal = new FileSystemTreeTraversal(Path.of(sourceFolderName));
 			ClassPlanterFileFoundListener fileFoundListener = new ClassPlanterFileFoundListener(configuration);
-			traversal.addFileFoundListener(fileFoundListener);
-			traversal.traverse();
+			for (String sourceFolderName : sourceFolderNames) {
+				FileSystemTreeTraversal traversal = new FileSystemTreeTraversal(Path.of(sourceFolderName));
+				traversal.addFileFoundListener(fileFoundListener);
+				traversal.traverse();
+			}
 			String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, configuration);
 			if (Files.exists(targetFilePath)) {
 				Files.delete(targetFilePath);
@@ -84,15 +87,7 @@ public class ClassPlanter {
 
 	private static List<String> readExplicitPackageNamesFromProperties() {
 		String explicitPackageNames = System.getProperty("classplanter.input.includePackages");
-		if (explicitPackageNames != null) {
-			StringTokenizer st = new StringTokenizer(explicitPackageNames, ",");
-			List<String> explicitPackages = new ArrayList<>();
-			while (st.hasMoreTokens()) {
-				explicitPackages.add(st.nextToken());
-			}
-			return explicitPackages;
-		}
-		return null;
+		return stringListSplitter.split(explicitPackageNames);
 	}
 
 }

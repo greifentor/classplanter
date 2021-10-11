@@ -54,9 +54,10 @@ Setting ``-Xmx4g`` option to enhance memory is recommended.
 
 Allows to read a YAML configuration file. The values of the file do override parameters set by properties.
 
-### Source File Folder "-sf {folder name}"
+### Source File Folders "-sf {folder name [, folder name]}"
 
-This option allows to define the folder whose JAVA files are to read for the diagram.
+This option allows to define the folders whose JAVA files are to read for the diagram. The folder names are comma
+separated.
 
 ### Target File Name "-tf {file name}"
 
