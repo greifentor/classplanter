@@ -82,6 +82,21 @@ values: FLAT, NONE
 
 **NONE**: ignores packages completely in the diagram.
 
+classplanter.input.includeClasses
+
+### Having Explicitly Included Classes
+
+Setting this property limits included classes to have matching (qualified) names. It is possible to configure several 
+class names comma separated. All (qualified) class names which are ending to the configured values will handled as 
+matching.
+
+```
+property name: classplanter.input.includeClasses
+values: ClassName[,ClassName]
+```
+
+Class names could be qualified. 
+
 ### Having Explicitly Included Packages
 
 Setting this property limits included classes to those contained in the passed package(s). It is possible to configure several package names comma separated. Only full matching packages will be respected.

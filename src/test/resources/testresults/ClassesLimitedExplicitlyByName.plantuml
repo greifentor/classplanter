@@ -1,0 +1,19 @@
+@startuml
+
+package a.pack.age {
+
+	class AClass {
+	}
+
+}
+
+package an.other.pack.age {
+
+	class DClass {
+	}
+
+}
+
+AClass --> DClass
+
+@enduml

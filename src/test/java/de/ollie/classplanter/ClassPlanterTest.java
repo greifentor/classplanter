@@ -291,6 +291,33 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForLimitationExplicitlyByClassName_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/ClassesLimitedExplicitlyByName.plantuml"));
+			System.setProperty("classplanter.input.explicitClassNames", "a.pack.age.AClass,DClass");
+			System.setProperty("classplanter.output.packageMode", "FLAT");
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/classes-limited-explicitly-by-names",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			System.setProperty("classplanter.output.packageMode", "NONE");
+			System.clearProperty("classplanter.input.explicitClassNames");
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }

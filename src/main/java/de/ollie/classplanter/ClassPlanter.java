@@ -56,6 +56,7 @@ public class ClassPlanter {
 				targetFilePath = Path.of(cmd.getOptionValue("tf"));
 			}
 			Configuration configuration = new Configuration()
+					.setExplicitClasses(readExplicitClassNamesFromProperties())
 					.setExplicitPackages(readExplicitPackageNamesFromProperties())
 					.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
 					.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));
@@ -90,6 +91,11 @@ public class ClassPlanter {
 		return stringListSplitter.split(explicitPackageNames);
 	}
 
+	private static List<String> readExplicitClassNamesFromProperties() {
+		String explicitClassNames = System.getProperty("classplanter.input.explicitClassNames");
+		return stringListSplitter.split(explicitClassNames);
+	}
+
 }
 
 @RequiredArgsConstructor
@@ -118,7 +124,7 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 					"String");
 	private static final List<String> MANY_TYPE_NAMES = List.of("List<", "Set<", "Stack<");
 
-	private final Configuration outputConfiguration;
+	private final Configuration configuration;
 
 	private List<TypeData> types = new ArrayList<>();
 	private List<AssociationData> associations = new ArrayList<>();
@@ -126,6 +132,9 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 	@Override
 	public void fileFound(FileFoundEvent event) {
 		if (!event.getPath().toString().toLowerCase().endsWith(".java")) {
+			return;
+		}
+		if (!isExplicitIncludedClass(event.getPath().toString())) {
 			return;
 		}
 		String fileContent;
@@ -161,7 +170,15 @@ class ClassPlanterFileFoundListener implements FileFoundListener {
 												compilationUnit.getPackageName(),
 												compilationUnit.getImportDeclarations(),
 												compilationUnitMembers,
-												outputConfiguration)));
+												configuration)));
+	}
+
+	private boolean isExplicitIncludedClass(String fileName) {
+		if ((configuration.getExplicitClasses() == null) || configuration.getExplicitClasses().isEmpty()) {
+			return true;
+		}
+		final String className = fileName.replace("\\", "/").replace("/", ".").replace(".java", "");
+		return configuration.getExplicitClasses().stream().anyMatch(className::endsWith);
 	}
 
 	private Type getType(TypeDeclaration typeDeclaration) {
