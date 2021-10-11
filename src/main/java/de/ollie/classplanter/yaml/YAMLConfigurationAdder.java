@@ -16,6 +16,9 @@ public class YAMLConfigurationAdder {
 		ensure(configuration != null, "configuration cannot be null.");
 		ensure(yamlConfigurationContent != null, "YAML configuration content cannot be null.");
 		setIfInYAMLConfigurationContent(
+				yamlConfigurationContent.getInput().getExplicitClasses(),
+				configuration::setExplicitClasses);
+		setIfInYAMLConfigurationContent(
 				yamlConfigurationContent.getInput().getExplicitPackages(),
 				configuration::setExplicitPackages);
 		setIfInYAMLConfigurationContent(

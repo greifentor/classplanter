@@ -1,4 +1,7 @@
 input:
+  explicitClasses:
+    - de.ollie.classplanter.AClass
+    - BClass
   explicitPackages:
     - de.ollie.classplanter
     - de.ollie.classplanter.model

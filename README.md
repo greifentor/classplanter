@@ -73,9 +73,17 @@ The output can be configured by setting properties.
 
 To have information about the packages in the diagram, set a package mode:
 
+Properties file:
+
 ```
 property name: classplanter.output.packageMode
-values: FLAT, NONE
+values: FLAT | NONE
+```
+YAML:
+
+```
+output:
+  packageMode: FLAT | NONE
 ```
 
 **FLAT**: creates a box for every package (also if one package is included in another one.
@@ -90,9 +98,20 @@ Setting this property limits included classes to have matching (qualified) names
 class names comma separated. All (qualified) class names which are ending to the configured values will handled as 
 matching.
 
+Properties file:
+
 ```
 property name: classplanter.input.includeClasses
 values: ClassName[,ClassName]
+```
+YAML:
+
+```
+input:
+  explicitClasses:
+    - (QUALIFIED) CLASS NAME 1
+    - (QUALIFIED) CLASS NAME 2
+    ...
 ```
 
 Class names could be qualified. 
@@ -101,16 +120,35 @@ Class names could be qualified.
 
 Setting this property limits included classes to those contained in the passed package(s). It is possible to configure several package names comma separated. Only full matching packages will be respected.
 
+Properties file:
+
 ```
 property name: classplanter.input.includePackages
 values: PackageName[,PackageName]
+```
+YAML:
+
+```
+input:
+  explicitPackages:
+    - PACKAGE NAME 1
+    - PACKAGE NAME 2
+    ...
 ```
 
 ### Unite Equal Associations
 
 To unite equal associations set the property listed below to "true".
 
+Properties file:
+
 ```
 property name: classplanter.output.uniteEqualAssociations
 values: "true" | "false"
+```
+YAML:
+
+```
+output:
+  uniteEqualAssociations: true | false
 ```

@@ -17,6 +17,8 @@ import de.ollie.classplanter.Configuration;
 @ExtendWith(MockitoExtension.class)
 public class YAMLConfigurationAdderTest {
 
+	private static final String EXPLICIT_CLASS_NAME_0 = "explicitClassName0";
+	private static final String EXPLICIT_CLASS_NAME_1 = "explicitClassName1";
 	private static final String EXPLICIT_PACKAGE_NAME_0 = "explicitPackageName0";
 	private static final String EXPLICIT_PACKAGE_NAME_1 = "explicitPackageName1";
 	private static final OutputConfigurationContent.PackageMode PACKAGE_MODE =
@@ -45,12 +47,14 @@ public class YAMLConfigurationAdderTest {
 			YAMLConfigurationContent yamlConfigurationContent = new YAMLConfigurationContent()
 					.setInput(
 							new InputConfigurationContent()
+									.setExplicitClasses(List.of(EXPLICIT_CLASS_NAME_0, EXPLICIT_CLASS_NAME_1))
 									.setExplicitPackages(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setOutput(
 							new OutputConfigurationContent()
 									.setPackageMode(PACKAGE_MODE)
 									.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS));
 			Configuration expected = new Configuration()
+					.setExplicitClasses(new ArrayList<>(List.of(EXPLICIT_CLASS_NAME_0, EXPLICIT_CLASS_NAME_1)))
 					.setExplicitPackages(new ArrayList<>(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setPackageMode(Configuration.PackageMode.FLAT)
 					.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS);

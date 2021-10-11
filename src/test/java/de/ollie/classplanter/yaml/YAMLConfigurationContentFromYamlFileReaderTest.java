@@ -34,6 +34,7 @@ public class YAMLConfigurationContentFromYamlFileReaderTest {
 			YAMLConfigurationContent expected = new YAMLConfigurationContent()
 					.setInput(
 							new InputConfigurationContent()
+									.setExplicitClasses(List.of("de.ollie.classplanter.AClass", "BClass"))
 									.setExplicitPackages(
 											List.of("de.ollie.classplanter", "de.ollie.classplanter.model")))
 					.setOutput(

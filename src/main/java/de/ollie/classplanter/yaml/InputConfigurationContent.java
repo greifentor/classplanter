@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 @Data
 public class InputConfigurationContent {
 
+	private List<String> explicitClasses;
 	private List<String> explicitPackages;
 
 }
