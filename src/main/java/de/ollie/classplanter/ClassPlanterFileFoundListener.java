@@ -34,8 +34,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
 	private static StereotypeReader stereotypeReader = new StereotypeReader();
-
-	private static final List<String> MANY_TYPE_NAMES = List.of("List<", "Set<", "Stack<");
+	private static ManyTypeChecker manyTypeChecker = new ManyTypeChecker();
 
 	private final Configuration configuration;
 
@@ -150,7 +149,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 											.setPackageName(typePackageName))
 							.setTo(
 									new ClassKeyData()
-											.setClassName(removeManyType(fieldDeclaration.getType()))
+											.setClassName(manyTypeChecker.removeManyType(fieldDeclaration.getType()))
 											.setPackageName(
 													getPackageName(
 															fieldDeclaration.getType(),
@@ -187,25 +186,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	private AssociationType getAssociationType(String type) {
-		return isManyType(type) ? AssociationType.MANY_TO_ONE : AssociationType.ONE_TO_ONE;
-	}
-
-	private boolean isManyType(String type) {
-		for (String typePrefix : MANY_TYPE_NAMES) {
-			if (type.startsWith(typePrefix)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private String removeManyType(String type) {
-		for (String typePrefix : MANY_TYPE_NAMES) {
-			if (type.startsWith(typePrefix)) {
-				return type.substring(0, type.length() - 1).replace(typePrefix, "");
-			}
-		}
-		return type.replace("<", "").replace(">", "").replace(",", "").replace("[]", "Arr");
+		return manyTypeChecker.isManyType(type) ? AssociationType.MANY_TO_ONE : AssociationType.ONE_TO_ONE;
 	}
 
 }
