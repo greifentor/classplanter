@@ -33,8 +33,10 @@ import lombok.RequiredArgsConstructor;
 public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
+	private static PackageAgent packageAgent = new PackageAgent();
 	private static StereotypeReader stereotypeReader = new StereotypeReader();
 	private static ManyTypeChecker manyTypeChecker = new ManyTypeChecker();
+	private static SuperinterfaceAgent superInterfaceAgent = new SuperinterfaceAgent();
 
 	private final Configuration configuration;
 
@@ -65,7 +67,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 						typeDeclaration -> compilationUnitMembers
 								.add(
 										new TypeData()
-												.addSuperInterfaceNames(getSuperInterfaceNames(typeDeclaration))
+												.addSuperInterfaceNames(
+														superInterfaceAgent.getSuperInterfaceNames(typeDeclaration))
 												.setClassName(typeDeclaration.getName())
 												.setPackageName(compilationUnit.getPackageName())
 												.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
@@ -125,15 +128,6 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		return associations;
 	}
 
-	private String[] getSuperInterfaceNames(TypeDeclaration typeDeclaration) {
-		if (typeDeclaration instanceof ClassDeclaration) {
-			return ((ClassDeclaration) typeDeclaration).getImplementedInterfaceNames().toArray(new String[0]);
-		} else if (typeDeclaration instanceof InterfaceDeclaration) {
-			return ((InterfaceDeclaration) typeDeclaration).getSuperInterfaceNames().toArray(new String[0]);
-		}
-		return new String[0];
-	}
-
 	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
 			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers,
 			Configuration outputConfiguration) {
@@ -176,7 +170,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,
 			String compilationUnitPackageName, List<ImportDeclaration> importDeclarations) {
-		return new PackageAgent()
+		return packageAgent
 				.findPackageNameForType(
 						typeName,
 						compilationUnitMembers,
