@@ -32,27 +32,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ClassPlanterFileFoundListener implements FileFoundListener {
 
+	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
 	private static StereotypeReader stereotypeReader = new StereotypeReader();
 
-	private static final List<String> SIMPLE_TYPE_NAMES = List
-			.of(
-					"boolean",
-					"Boolean",
-					"byte",
-					"Byte",
-					"char",
-					"Character",
-					"double",
-					"Double",
-					"float",
-					"Float",
-					"int",
-					"Integer",
-					"long",
-					"Long",
-					"short",
-					"Short",
-					"String");
 	private static final List<String> MANY_TYPE_NAMES = List.of("List<", "Set<", "Stack<");
 
 	private final Configuration configuration;
@@ -160,7 +142,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
-				if (isClassType(fieldDeclaration)) {
+				if (classTypeChecker.isClassType(fieldDeclaration)) {
 					AssociationData associationData = new AssociationData()
 							.setFrom(
 									new ClassKeyData()
@@ -202,10 +184,6 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 						compilationUnitPackageName,
 						importDeclarations)
 				.orElse(null);
-	}
-
-	private boolean isClassType(FieldDeclaration fieldDeclaration) {
-		return !SIMPLE_TYPE_NAMES.contains(fieldDeclaration.getType());
 	}
 
 	private AssociationType getAssociationType(String type) {
