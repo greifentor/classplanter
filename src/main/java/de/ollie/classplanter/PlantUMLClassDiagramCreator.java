@@ -82,7 +82,9 @@ public class PlantUMLClassDiagramCreator {
 	}
 
 	private String getTypeKeyWord(TypeData typeData) {
-		if (typeData.getType() == Type.INTERFACE) {
+		if (typeData.getType() == Type.ENUM) {
+			return "enum ";
+		} else if (typeData.getType() == Type.INTERFACE) {
 			return "interface ";
 		}
 		return (typeData.getType() == Type.ABSTRACT_CLASS ? "abstract " : "") + "class ";

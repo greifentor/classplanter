@@ -14,6 +14,8 @@ file.
 The application is generally able to create a class diagram for a java source path:
 
 * Reads classes.
+* Reads enums.
+* Reads interfaces.
 * Respects super classes and implemented interfaces.
 * Creates associations to other classes via attribute references.
 * Identifies many to one relations (of type "List", "Set" and "Stack").

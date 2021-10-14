@@ -11,16 +11,17 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import de.ollie.blueprints.codereader.java.model.ClassDeclaration;
+import de.ollie.blueprints.codereader.java.model.EnumDeclaration;
 import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
 
 @ExtendWith(MockitoExtension.class)
-public class SuperinterfaceAgentTest {
+public class SuperInterfaceAgentTest {
 
 	private static final String INTERFACE_NAME_0 = "interface name 0";
 	private static final String INTERFACE_NAME_1 = "interface name 1";
 
 	@InjectMocks
-	private SuperinterfaceAgent unitUnderTest;
+	private SuperInterfaceAgent unitUnderTest;
 
 	@Nested
 	class TestsOfMethod_getSuperInterfaceNames_TypeDeclaration {
@@ -42,6 +43,22 @@ public class SuperinterfaceAgentTest {
 					unitUnderTest
 							.getSuperInterfaceNames(
 									new ClassDeclaration()
+											.setImplementedInterfaceNames(
+													List.of(INTERFACE_NAME_0, INTERFACE_NAME_1))));
+		}
+
+		@Test
+		void passAEnumDeclarationWithoutAnySuperInterfaces_returnsAnEmptyStringArray() {
+			assertArrayEquals(new String[0], unitUnderTest.getSuperInterfaceNames(new EnumDeclaration()));
+		}
+
+		@Test
+		void passAEnumDeclarationWithSuperInterfaces_returnsAStringArrayWithTheSuperInterfaceName() {
+			assertArrayEquals(
+					new String[] { INTERFACE_NAME_0, INTERFACE_NAME_1 },
+					unitUnderTest
+							.getSuperInterfaceNames(
+									new EnumDeclaration()
 											.setImplementedInterfaceNames(
 													List.of(INTERFACE_NAME_0, INTERFACE_NAME_1))));
 		}

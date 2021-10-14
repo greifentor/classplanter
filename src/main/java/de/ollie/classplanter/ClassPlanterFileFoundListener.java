@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import de.ollie.blueprints.codereader.java.JavaCodeConverter;
 import de.ollie.blueprints.codereader.java.model.ClassDeclaration;
 import de.ollie.blueprints.codereader.java.model.CompilationUnit;
+import de.ollie.blueprints.codereader.java.model.EnumDeclaration;
 import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
 import de.ollie.blueprints.codereader.java.model.ImportDeclaration;
 import de.ollie.blueprints.codereader.java.model.InterfaceDeclaration;
@@ -36,7 +37,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	private static PackageAgent packageAgent = new PackageAgent();
 	private static StereotypeReader stereotypeReader = new StereotypeReader();
 	private static ManyTypeChecker manyTypeChecker = new ManyTypeChecker();
-	private static SuperinterfaceAgent superInterfaceAgent = new SuperinterfaceAgent();
+	private static SuperInterfaceAgent superInterfaceAgent = new SuperInterfaceAgent();
 
 	private final Configuration configuration;
 
@@ -102,6 +103,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				return Type.ABSTRACT_CLASS;
 			}
 			return Type.CLASS;
+		} else if (typeDeclaration instanceof EnumDeclaration) {
+			return Type.ENUM;
 		} else if (typeDeclaration instanceof InterfaceDeclaration) {
 			return Type.INTERFACE;
 		}
@@ -120,7 +123,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				.stream()
 				.filter(
 						typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
-								|| (typeData.getType() == Type.INTERFACE) || (typeData.getType() == Type.REFERENCED))
+								|| (typeData.getType() == Type.ENUM) || (typeData.getType() == Type.INTERFACE)
+								|| (typeData.getType() == Type.REFERENCED))
 				.collect(Collectors.toList());
 	}
 

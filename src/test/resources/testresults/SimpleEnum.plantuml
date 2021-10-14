@@ -1,0 +1,11 @@
+@startuml
+
+class AClass {
+}
+
+enum EnumType {
+}
+
+AClass --> EnumType
+
+@enduml

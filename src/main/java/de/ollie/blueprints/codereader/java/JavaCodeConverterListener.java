@@ -20,6 +20,7 @@ import de.ollie.blueprints.codereader.java.antlr.Java8Parser.CompilationUnitCont
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ElementValueContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ElementValuePairContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ElementValuePairListContext;
+import de.ollie.blueprints.codereader.java.antlr.Java8Parser.EnumDeclarationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FieldDeclarationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FieldModifierContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FormalParameterContext;
@@ -57,6 +58,7 @@ import de.ollie.blueprints.codereader.java.model.Annotation;
 import de.ollie.blueprints.codereader.java.model.ClassDeclaration;
 import de.ollie.blueprints.codereader.java.model.CompilationUnit;
 import de.ollie.blueprints.codereader.java.model.ElementValuePair;
+import de.ollie.blueprints.codereader.java.model.EnumDeclaration;
 import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
 import de.ollie.blueprints.codereader.java.model.FormalParameter;
 import de.ollie.blueprints.codereader.java.model.ImportDeclaration;
@@ -165,6 +167,25 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 									() -> {
 										throw new JavaCodeConverterException(
 												"ERROR: not found: 'class' in: " + ncdc.getText(),
+												null);
+									});
+				}
+				for (EnumDeclarationContext edc : findChildsByClass(cdc, EnumDeclarationContext.class)) {
+					findNextChildByClassAndContent(edc, TerminalNodeImpl.class, "enum")
+							.ifPresentOrElse( //
+									tni -> {
+										EnumDeclaration classDeclaration = new EnumDeclaration()
+												.addAnnotations(getAnnotations(edc, ClassModifierContext.class))
+												.addFields(getFields(edc))
+												.addImplementedInterfaceNames(getImplementedInterfaceNames(edc))
+												.addMethods(getMethods(edc))
+												.addModifiers(getModifiers(edc, ClassModifierContext.class))
+												.setName(tni.getText());
+										this.compilationUnit.addTypeDeclarations(classDeclaration);
+									},
+									() -> {
+										throw new JavaCodeConverterException(
+												"ERROR: not found: 'enum' in: " + edc.getText(),
 												null);
 									});
 				}
@@ -463,6 +484,20 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 	private String[] getImplementedInterfaceNames(NormalClassDeclarationContext ncdc) {
 		if (ncdc.superinterfaces() != null) {
 			return ncdc
+					.superinterfaces()
+					.interfaceTypeList()
+					.interfaceType()
+					.stream()
+					.map(interfaceType -> interfaceType.classType().Identifier().getText())
+					.collect(Collectors.toList())
+					.toArray(new String[0]);
+		}
+		return new String[0];
+	}
+
+	private String[] getImplementedInterfaceNames(EnumDeclarationContext edc) {
+		if (edc.superinterfaces() != null) {
+			return edc
 					.superinterfaces()
 					.interfaceTypeList()
 					.interfaceType()
