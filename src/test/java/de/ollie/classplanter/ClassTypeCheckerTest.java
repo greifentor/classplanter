@@ -12,8 +12,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import de.ollie.blueprints.codereader.java.model.FieldDeclaration;
-
 @ExtendWith(MockitoExtension.class)
 public class ClassTypeCheckerTest {
 
@@ -31,19 +29,19 @@ public class ClassTypeCheckerTest {
 		@ParameterizedTest
 		@CsvSource(value = { "boolean", "byte", "char", "double", "float", "int", "long", "short" })
 		void passFieldDeclarationWithSimpleTypeName_returnsFalse(String typeName) {
-			assertFalse(unitUnderTest.isClassType(new FieldDeclaration().setType(typeName)));
+			assertFalse(unitUnderTest.isClassType(typeName));
 		}
 
 		@ParameterizedTest
 		@CsvSource(value = { "Boolean", "Byte", "Character", "Double", "Float", "Integer", "Long", "Short", "String" })
 		void passFieldDeclarationWithWrapperTypeName_returnsFalse(String typeName) {
-			assertFalse(unitUnderTest.isClassType(new FieldDeclaration().setType(typeName)));
+			assertFalse(unitUnderTest.isClassType(typeName));
 		}
 
 		@ParameterizedTest
 		@CsvSource(value = { "AClass", "JFrame" })
 		void passFieldDeclarationWithClassTypeName_returnsTrue(String typeName) {
-			assertTrue(unitUnderTest.isClassType(new FieldDeclaration().setType(typeName)));
+			assertTrue(unitUnderTest.isClassType(typeName));
 		}
 
 	}

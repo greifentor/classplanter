@@ -1,0 +1,18 @@
+@startuml
+
+class AClass {
+	+ counter : int
+	# name : String
+	~ amount : double
+	- anotherCounter : long
+	- number : int
+}
+
+class BClass {
+}
+
+AClass --> "*" BClass : bClasses
+
+BClass --> Key : key
+
+@enduml

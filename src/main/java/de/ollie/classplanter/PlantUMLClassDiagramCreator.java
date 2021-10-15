@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import de.ollie.classplanter.Configuration.PackageMode;
 import de.ollie.classplanter.model.AssociationData;
 import de.ollie.classplanter.model.AssociationData.AssociationType;
+import de.ollie.classplanter.model.MemberData;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
 
@@ -13,6 +14,9 @@ import de.ollie.classplanter.model.TypeData.Type;
  * @author ollie (01.10.2021)
  */
 public class PlantUMLClassDiagramCreator {
+
+	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
+	private static VisibilityToPlantUMLConverter visibilityToPlantUMLConverter = new VisibilityToPlantUMLConverter();
 
 	public String create(ClassPlanterFileFoundListener fileFoundListener, Configuration outputConfiguration) {
 		String code = "@startuml\n" //
@@ -50,7 +54,8 @@ public class PlantUMLClassDiagramCreator {
 					previousPackageName = typeData.getPackageName();
 					code += "package " + typeData.getPackageName() + " {\n\n";
 				}
-				code += "\t" + createClassHeader(typeData) + " {\n\t}\n\n";
+				code += "\t" + createClassHeader(typeData) + " {\n"
+						+ createMemberCode(typeData, outputConfiguration, true) + "\t}\n\n";
 			}
 			return code + "}\n";
 		}
@@ -59,7 +64,9 @@ public class PlantUMLClassDiagramCreator {
 				.sorted(
 						(typeData0,
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
-				.map(typeData -> createClassHeader(typeData) + " {\n}\n")
+				.map(
+						typeData -> createClassHeader(typeData) + " {\n"
+								+ createMemberCode(typeData, outputConfiguration, false) + "}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
 	}
@@ -69,6 +76,33 @@ public class PlantUMLClassDiagramCreator {
 				+ getSuperClassExtension(typeData)
 				+ getSuperInterfaceImplementations(typeData)
 				+ getStereotypes(typeData);
+	}
+
+	private String createMemberCode(TypeData typeData, Configuration outputConfiguration, boolean indent) {
+		return outputConfiguration.isShowMembers() ? getMembersCode(typeData, indent) : "";
+	}
+
+	private String getMembersCode(TypeData typeData, boolean indent) {
+		return typeData
+				.getMembers()
+				.stream()
+				.filter(member -> !classTypeChecker.isClassType(member.getType()))
+				.sorted(this::compareMembers)
+				.map(
+						member -> "\t" + (indent ? "\t" : "")
+								+ visibilityToPlantUMLConverter.getPlantUMLString(member.getVisibility()) + " "
+								+ member.getName() + " : " + member.getType())
+				.reduce((s0, s1) -> s0 + "\n" + s1)
+				.map(s -> s + "\n")
+				.orElse("");
+	}
+
+	private int compareMembers(MemberData m0, MemberData m1) {
+		int result = m0.getVisibility().ordinal() - m1.getVisibility().ordinal();
+		if (result == 0) {
+			result = m0.getName().compareTo(m1.getName());
+		}
+		return result;
 	}
 
 	private boolean isExplicitPackage(String typePackageName, Configuration outputConfiguration) {
@@ -116,7 +150,10 @@ public class PlantUMLClassDiagramCreator {
 						associationData -> isExplicitPackage(
 								associationData.getFrom().getPackageName(),
 								outputConfiguration))
-				.map(associationData -> getAssociation(associationData) + "\n")
+				.map(
+						associationData -> getAssociation(associationData)
+								+ (outputConfiguration.isShowMembers() ? " : " + associationData.getFieldName() : "")
+								+ "\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
 				.orElse("");

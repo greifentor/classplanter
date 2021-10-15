@@ -14,6 +14,7 @@ public class AssociationData {
 		ONE_TO_ONE;
 	}
 
+	private String fieldName;
 	private ClassKeyData from;
 	private ClassKeyData to;
 	private AssociationType type = AssociationType.ONE_TO_ONE;

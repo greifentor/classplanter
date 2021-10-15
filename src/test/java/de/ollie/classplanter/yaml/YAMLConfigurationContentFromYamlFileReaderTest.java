@@ -40,6 +40,7 @@ public class YAMLConfigurationContentFromYamlFileReaderTest {
 					.setOutput(
 							new OutputConfigurationContent()
 									.setPackageMode(PackageMode.FLAT)
+									.setShowMembers(true)
 									.setUniteEqualAssociations(true));
 			// Run
 			YAMLConfigurationContent returned = unitUnderTest.read(fileName);

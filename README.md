@@ -25,6 +25,7 @@ The application is generally able to create a class diagram for a java source pa
 ## What Does It NOT Manage?
 
 * Lists of lists, sets of sets and so on.
+* Member classes.
 
 
 ## How to Compile?
@@ -137,6 +138,25 @@ input:
     - PACKAGE NAME 2
     ...
 ```
+
+### Show Members
+
+If the class members should be shown in the diagram, set the property as listed below to "true".
+S
+Properties file:
+
+```
+property name: classplanter.output.showMembers
+values: "true" | "false"
+```
+YAML:
+
+```
+output:
+  showMembers: true | false
+```
+
+Setting this option will suspend the option to unite equal associations.
 
 ### Unite Equal Associations
 

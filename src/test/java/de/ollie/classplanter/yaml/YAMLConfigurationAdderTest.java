@@ -23,7 +23,8 @@ public class YAMLConfigurationAdderTest {
 	private static final String EXPLICIT_PACKAGE_NAME_1 = "explicitPackageName1";
 	private static final OutputConfigurationContent.PackageMode PACKAGE_MODE =
 			OutputConfigurationContent.PackageMode.FLAT;
-	private static final boolean UNITE_REQUAL_ASSOCIATIONS = true;
+	private static final boolean SHOW_MEMBERS = true;
+	private static final boolean UNITE_EQUAL_ASSOCIATIONS = true;
 
 	@InjectMocks
 	private YAMLConfigurationAdder unitUnderTest;
@@ -52,12 +53,14 @@ public class YAMLConfigurationAdderTest {
 					.setOutput(
 							new OutputConfigurationContent()
 									.setPackageMode(PACKAGE_MODE)
-									.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS));
+									.setShowMembers(SHOW_MEMBERS)
+									.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS));
 			Configuration expected = new Configuration()
 					.setExplicitClasses(new ArrayList<>(List.of(EXPLICIT_CLASS_NAME_0, EXPLICIT_CLASS_NAME_1)))
 					.setExplicitPackages(new ArrayList<>(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setPackageMode(Configuration.PackageMode.FLAT)
-					.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS);
+					.setShowMembers(true)
+					.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS);
 			// Run
 			Configuration returned = unitUnderTest.add(new Configuration(), yamlConfigurationContent);
 			// Check
@@ -71,7 +74,7 @@ public class YAMLConfigurationAdderTest {
 			Configuration expected = new Configuration()
 					.setExplicitPackages(new ArrayList<>(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setPackageMode(Configuration.PackageMode.FLAT)
-					.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS);
+					.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS);
 			// Run
 			Configuration returned =
 					unitUnderTest
@@ -81,7 +84,7 @@ public class YAMLConfigurationAdderTest {
 													new ArrayList<>(
 															List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 											.setPackageMode(Configuration.PackageMode.FLAT)
-											.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS),
+											.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS),
 									yamlConfigurationContent);
 			// Check
 			assertEquals(expected, returned);
@@ -97,11 +100,11 @@ public class YAMLConfigurationAdderTest {
 					.setOutput(
 							new OutputConfigurationContent()
 									.setPackageMode(PACKAGE_MODE)
-									.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS));
+									.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS));
 			Configuration expected = new Configuration()
 					.setExplicitPackages(new ArrayList<>(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setPackageMode(Configuration.PackageMode.FLAT)
-					.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS);
+					.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS);
 			// Run
 			Configuration returned = unitUnderTest
 					.add(
@@ -110,7 +113,7 @@ public class YAMLConfigurationAdderTest {
 											new ArrayList<>(
 													List.of(EXPLICIT_PACKAGE_NAME_0 + 1, EXPLICIT_PACKAGE_NAME_1 + 1)))
 									.setPackageMode(Configuration.PackageMode.NONE)
-									.setUniteEqualAssociations(!UNITE_REQUAL_ASSOCIATIONS),
+									.setUniteEqualAssociations(!UNITE_EQUAL_ASSOCIATIONS),
 							yamlConfigurationContent);
 			// Check
 			assertEquals(expected, returned);
@@ -124,7 +127,7 @@ public class YAMLConfigurationAdderTest {
 			Configuration expected = new Configuration()
 					.setExplicitPackages(new ArrayList<>(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setPackageMode(Configuration.PackageMode.FLAT)
-					.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS);
+					.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS);
 			// Run
 			Configuration returned =
 					unitUnderTest
@@ -134,7 +137,7 @@ public class YAMLConfigurationAdderTest {
 													new ArrayList<>(
 															List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 											.setPackageMode(Configuration.PackageMode.FLAT)
-											.setUniteEqualAssociations(UNITE_REQUAL_ASSOCIATIONS),
+											.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS),
 									yamlConfigurationContent);
 			// Check
 			assertEquals(expected, returned);

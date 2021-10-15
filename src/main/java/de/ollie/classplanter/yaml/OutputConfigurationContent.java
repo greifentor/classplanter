@@ -16,6 +16,7 @@ public class OutputConfigurationContent {
 	}
 
 	private PackageMode packageMode;
+	private Boolean showMembers;
 	private Boolean uniteEqualAssociations;
 
 }

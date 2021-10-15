@@ -24,6 +24,7 @@ public class TypeData {
 	}
 
 	private String className;
+	private List<MemberData> members = new ArrayList<>();
 	private String packageName;
 	private String superClassName;
 	private List<String> stereotypes = new ArrayList<>();

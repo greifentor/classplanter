@@ -21,6 +21,8 @@ import de.ollie.classplanter.Configuration.PackageMode;
 import de.ollie.classplanter.model.AssociationData;
 import de.ollie.classplanter.model.AssociationData.AssociationType;
 import de.ollie.classplanter.model.ClassKeyData;
+import de.ollie.classplanter.model.MemberData;
+import de.ollie.classplanter.model.MemberData.Visibility;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
 import de.ollie.fstools.traversal.FileFoundEvent;
@@ -71,6 +73,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 												.addSuperInterfaceNames(
 														superInterfaceAgent.getSuperInterfaceNames(typeDeclaration))
 												.setClassName(typeDeclaration.getName())
+												.setMembers(getMembers(typeDeclaration))
 												.setPackageName(compilationUnit.getPackageName())
 												.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 												.setSuperClassName(getSuperClassName(typeDeclaration))
@@ -87,6 +90,33 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 												compilationUnit.getImportDeclarations(),
 												compilationUnitMembers,
 												configuration)));
+	}
+
+	private List<MemberData> getMembers(TypeDeclaration typeDeclaration) {
+		return typeDeclaration instanceof ClassDeclaration
+				? ((ClassDeclaration) typeDeclaration)
+						.getFields()
+						.stream()
+						.map(
+								fieldDeclaration -> new MemberData()
+										.setName(fieldDeclaration.getName())
+										.setType(fieldDeclaration.getType())
+										.setVisibility(getVisibility(fieldDeclaration)))
+						.collect(Collectors.toList())
+				: new ArrayList<>();
+	}
+
+	private Visibility getVisibility(FieldDeclaration fieldDeclaration) {
+		for (Modifier modifier : fieldDeclaration.getModifiers()) {
+			if (modifier == Modifier.PRIVATE) {
+				return Visibility.PRIVATE;
+			} else if (modifier == Modifier.PROTECTED) {
+				return Visibility.PROTECTED;
+			} else if (modifier == Modifier.PUBLIC) {
+				return Visibility.PUBLIC;
+			}
+		}
+		return Visibility.PACKAGE_PRIVATE;
 	}
 
 	private boolean isExplicitIncludedClass(String fileName) {
@@ -139,8 +169,10 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
-				if (classTypeChecker.isClassType(fieldDeclaration)) {
+				if (classTypeChecker.isClassType(fieldDeclaration.getType())) {
 					AssociationData associationData = new AssociationData()
+							.setFieldName(
+									outputConfiguration.isUniteEqualAssociations() ? null : fieldDeclaration.getName())
 							.setFrom(
 									new ClassKeyData()
 											.setClassName(typeDeclaration.getName())
@@ -158,13 +190,14 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 					associations.add(associationData);
 					if ((outputConfiguration.getPackageMode() == PackageMode.FLAT)
 							&& (associationData.getTo().getPackageName() != null)) {
-						types
-								.add(
-										new TypeData()
-												.setClassName(associationData.getTo().getClassName())
-												.setPackageName(associationData.getTo().getPackageName())
-												.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
-												.setType(Type.REFERENCED));
+						TypeData typeData = new TypeData()
+								.setClassName(associationData.getTo().getClassName())
+								.setPackageName(associationData.getTo().getPackageName())
+								.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
+								.setType(Type.REFERENCED);
+						if (!types.contains(typeData)) {
+							types.add(typeData);
+						}
 					}
 				}
 			}

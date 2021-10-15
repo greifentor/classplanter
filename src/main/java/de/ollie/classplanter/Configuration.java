@@ -22,6 +22,7 @@ public class Configuration {
 	private List<String> explicitClasses;
 	private List<String> explicitPackages;
 	private PackageMode packageMode;
+	private boolean showMembers;
 	private boolean uniteEqualAssociations;
 
 }

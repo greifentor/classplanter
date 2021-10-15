@@ -7,4 +7,5 @@ input:
     - de.ollie.classplanter.model
 output:
   packageMode: FLAT
+  showMembers: true
   uniteEqualAssociations: true

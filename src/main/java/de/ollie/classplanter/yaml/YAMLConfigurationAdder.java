@@ -25,6 +25,9 @@ public class YAMLConfigurationAdder {
 				yamlConfigurationContent.getOutput().getPackageMode(),
 				value -> configuration.setPackageMode(PackageMode.valueOf(value.name())));
 		setIfInYAMLConfigurationContent(
+				yamlConfigurationContent.getOutput().getShowMembers(),
+				configuration::setShowMembers);
+		setIfInYAMLConfigurationContent(
 				yamlConfigurationContent.getOutput().getUniteEqualAssociations(),
 				configuration::setUniteEqualAssociations);
 		return configuration;

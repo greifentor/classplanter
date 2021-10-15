@@ -339,6 +339,29 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
+		@Test
+		void passParametersForShowingMemberFields_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/ClassesWithMembers.plantuml"));
+			System.setProperty("classplanter.output.showMembers", "true");
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/classes-with-members",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			System.clearProperty("classplanter.output.showMembers");
+			// Check
+			assertEquals(expected, returned);
+		}
+
 	}
 
 }
