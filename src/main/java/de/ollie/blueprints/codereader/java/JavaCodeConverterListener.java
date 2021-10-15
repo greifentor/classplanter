@@ -20,6 +20,8 @@ import de.ollie.blueprints.codereader.java.antlr.Java8Parser.CompilationUnitCont
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ElementValueContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ElementValuePairContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.ElementValuePairListContext;
+import de.ollie.blueprints.codereader.java.antlr.Java8Parser.EnumConstantContext;
+import de.ollie.blueprints.codereader.java.antlr.Java8Parser.EnumConstantListContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.EnumDeclarationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FieldDeclarationContext;
 import de.ollie.blueprints.codereader.java.antlr.Java8Parser.FieldModifierContext;
@@ -177,6 +179,7 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 										EnumDeclaration classDeclaration = new EnumDeclaration()
 												.addAnnotations(getAnnotations(edc, ClassModifierContext.class))
 												.addFields(getFields(edc))
+												.setIdentifiers(getIdentifiers(edc))
 												.addImplementedInterfaceNames(getImplementedInterfaceNames(edc))
 												.addMethods(getMethods(edc))
 												.addModifiers(getModifiers(edc, ClassModifierContext.class))
@@ -210,6 +213,15 @@ public class JavaCodeConverterListener extends Java8BaseListener {
 				}
 			}
 		}
+	}
+
+	private List<String> getIdentifiers(EnumDeclarationContext edc) {
+		return findChildByClass(edc.enumBody(), EnumConstantListContext.class).map(eclc -> {
+			final List<String> identifiers = new ArrayList<>();
+			findChildsByClass(eclc, EnumConstantContext.class)
+					.forEach(ecc -> identifiers.add(ecc.children.get(0).getText()));
+			return identifiers;
+		}).orElse(new ArrayList<>());
 	}
 
 	private <T extends ParserRuleContext> Annotation[] getAnnotations(ParserRuleContext prc, Class<T> cls) {

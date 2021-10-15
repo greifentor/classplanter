@@ -32,7 +32,7 @@ public class ClassTypeChecker {
 	 * @return "true" if the passed type name is not one of a simple type.
 	 */
 	public boolean isClassType(String typeName) {
-		return !SIMPLE_TYPE_NAMES.contains(typeName);
+		return typeName != null ? !SIMPLE_TYPE_NAMES.contains(typeName) : false;
 	}
 
 }

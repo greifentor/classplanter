@@ -103,7 +103,13 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 										.setType(fieldDeclaration.getType())
 										.setVisibility(getVisibility(fieldDeclaration)))
 						.collect(Collectors.toList())
-				: new ArrayList<>();
+				: typeDeclaration instanceof EnumDeclaration
+						? ((EnumDeclaration) typeDeclaration)
+								.getIdentifiers()
+								.stream()
+								.map(identifier -> new MemberData().setName(identifier))
+								.collect(Collectors.toList())
+						: new ArrayList<>();
 	}
 
 	private Visibility getVisibility(FieldDeclaration fieldDeclaration) {

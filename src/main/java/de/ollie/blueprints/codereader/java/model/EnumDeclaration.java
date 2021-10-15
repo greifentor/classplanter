@@ -19,6 +19,7 @@ public class EnumDeclaration implements TypeDeclaration {
 
 	private List<Annotation> annotations = new ArrayList<>();
 	private List<FieldDeclaration> fields = new ArrayList<>();
+	private List<String> identifiers = new ArrayList<>();
 	private List<String> implementedInterfaceNames = new ArrayList<>();
 	private List<MethodDeclaration> methods = new ArrayList<>();
 	private List<Modifier> modifiers = new ArrayList<>();

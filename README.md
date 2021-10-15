@@ -141,8 +141,9 @@ input:
 
 ### Show Members
 
-If the class members should be shown in the diagram, set the property as listed below to "true".
-S
+If the class members should be shown in the diagram, set the property as listed below to "true". This option will also
+reveal identifiers in enum classes. 
+
 Properties file:
 
 ```

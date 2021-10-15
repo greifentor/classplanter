@@ -16,11 +16,12 @@ public class MemberData {
 		PUBLIC,
 		PROTECTED,
 		PACKAGE_PRIVATE,
-		PRIVATE;
+		PRIVATE,
+		NONE;
 	}
 
 	private String name;
 	private String type;
-	private Visibility visibility;
+	private Visibility visibility = Visibility.NONE;
 
 }

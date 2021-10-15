@@ -88,10 +88,7 @@ public class PlantUMLClassDiagramCreator {
 				.stream()
 				.filter(member -> !classTypeChecker.isClassType(member.getType()))
 				.sorted(this::compareMembers)
-				.map(
-						member -> "\t" + (indent ? "\t" : "")
-								+ visibilityToPlantUMLConverter.getPlantUMLString(member.getVisibility()) + " "
-								+ member.getName() + " : " + member.getType())
+				.map(member -> "\t" + (indent ? "\t" : "") + getMemberCode(typeData, member))
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
 				.orElse("");
@@ -103,6 +100,14 @@ public class PlantUMLClassDiagramCreator {
 			result = m0.getName().compareTo(m1.getName());
 		}
 		return result;
+	}
+
+	private String getMemberCode(TypeData typeData, MemberData member) {
+		if (typeData.getType() == Type.ENUM) {
+			return member.getName();
+		}
+		return visibilityToPlantUMLConverter.getPlantUMLString(member.getVisibility()) + " " + member.getName() + " : "
+				+ member.getType();
 	}
 
 	private boolean isExplicitPackage(String typePackageName, Configuration outputConfiguration) {
