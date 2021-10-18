@@ -94,6 +94,8 @@ output:
 Note that those configured exclusions also affect the referenced classes, which are not shown if their names matching
 one of the class names to exclude.
 
+Exclusions also exclude implicitly included classes.
+
 
 ### Having Packages in the Diagram
 

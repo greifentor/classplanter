@@ -67,7 +67,7 @@ public class ClassPlanter {
 
 	private static Configuration getConfigurationFromProperties() {
 		return new Configuration()
-                .setExcludeByClassName(readExcludeByClassNameFromProperties())
+				.setExcludeByClassName(readExcludeByClassNameFromProperties())
 				.setExplicitClasses(readExplicitClassNamesFromProperties())
 				.setExplicitPackages(readExplicitPackageNamesFromProperties())
 				.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
@@ -75,15 +75,15 @@ public class ClassPlanter {
 				.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));
 	}
 
-    private static List<String> readExcludeByClassNameFromProperties() {
-        String classNames = System.getProperty("classplanter.output.excludeByClassName");
-        return stringListSplitter.split(classNames);
-    }
+	private static List<String> readExcludeByClassNameFromProperties() {
+		String classNames = System.getProperty("classplanter.output.excludeByClassName");
+		return stringListSplitter.split(classNames);
+	}
 
-    private static List<String> readExplicitPackageNamesFromProperties() {
-        String explicitPackageNames = System.getProperty("classplanter.input.includePackages");
-        return stringListSplitter.split(explicitPackageNames);
-    }
+	private static List<String> readExplicitPackageNamesFromProperties() {
+		String explicitPackageNames = System.getProperty("classplanter.input.includePackages");
+		return stringListSplitter.split(explicitPackageNames);
+	}
 
 	private static List<String> readExplicitClassNamesFromProperties() {
 		String explicitClassNames = System.getProperty("classplanter.input.explicitClassNames");

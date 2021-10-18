@@ -66,6 +66,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		List<TypeData> compilationUnitMembers = new ArrayList<>();
 		compilationUnit
 				.getTypeDeclarations()
+				.stream()
+				.filter(this::isToImport)
 				.forEach(
 						typeDeclaration -> compilationUnitMembers
 								.add(
@@ -81,6 +83,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		types.addAll(compilationUnitMembers);
 		compilationUnit
 				.getTypeDeclarations()
+				.stream()
+				.filter(this::isToImportAsAssociation)
 				.forEach(
 						typeDeclaration -> associations
 								.addAll(
@@ -90,6 +94,21 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 												compilationUnit.getImportDeclarations(),
 												compilationUnitMembers,
 												configuration)));
+	}
+
+	private boolean isToImport(TypeDeclaration typeDeclaration) {
+		return !isClassNameIsOnExcludeByClassNameList(typeDeclaration.getName());
+	}
+
+	private boolean isClassNameIsOnExcludeByClassNameList(String className) {
+		List<String> excludedClassNames = configuration.getExcludeByClassName();
+		return excludedClassNames == null
+				? false
+				: excludedClassNames.stream().anyMatch(excludedClassName -> excludedClassName.equals(className));
+	}
+
+	private boolean isToImportAsAssociation(TypeDeclaration typeDeclaration) {
+		return !isClassNameIsOnExcludeByClassNameList(typeDeclaration.getName());
 	}
 
 	private List<MemberData> getMembers(TypeDeclaration typeDeclaration) {
@@ -175,6 +194,9 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
+				if (isClassNameIsOnExcludeByClassNameList(fieldDeclaration.getType())) {
+					continue;
+				}
 				if (classTypeChecker.isClassType(fieldDeclaration.getType())) {
 					AssociationData associationData = new AssociationData()
 							.setFieldName(

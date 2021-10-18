@@ -386,25 +386,93 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
-        @Test
-        void passParameterForExclusionByClassName_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
-            // Prepare
-            String expected = Files
-                    .readString(Path.of("src/test/resources/testresults/SimpleClasses-ExcludeByClassName.plantuml"));
-            System.setProperty("classplanter.output.excludeByClassName", "SimpleClass2,SimpleClass4");
-            // Run
-            ClassPlanter
-                    .main(
-                            new String[] {
-                                    "-sf",
-                                    "src/test/resources/testsources/simple-classes",
-                                    "-tf",
-                                    tempDir.toString() + "/result.plantuml" });
-            System.clearProperty("classplanter.output.excludeByClassName");
-            String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
-            // Check
-            assertEquals(expected, returned);
-        }
+		@Test
+		void passParameterForExclusionByClassName_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/SimpleClasses-ExcludeByClassName.plantuml"));
+			System.setProperty("classplanter.output.excludeByClassName", "SimpleClass2,SimpleClass4");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-classes",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.excludeByClassName");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParameterForExclusionByClassNameNoHits_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleClasses-Empty.plantuml"));
+			System.setProperty("classplanter.output.excludeByClassName", "SimpleClass22,SimpleClass");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-classes",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.excludeByClassName");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersForASimpleAssociationReferencedClassExcluded_createsACorrectPlantUMLFile(
+				@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(
+							Path
+									.of(
+											"src/test/resources/testresults/SimpleAssociation-ReferencedClassExcluded.plantuml"));
+			System.setProperty("classplanter.output.excludeByClassName", "BClass");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-association",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.excludeByClassName");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersForASimpleAssociationReferencingClassExcluded_createsACorrectPlantUMLFile(
+				@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(
+							Path
+									.of(
+											"src/test/resources/testresults/SimpleAssociation-ReferencingClassExcluded.plantuml"));
+			System.setProperty("classplanter.output.excludeByClassName", "AClass");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/simple-association",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.excludeByClassName");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
 
 	}
 
