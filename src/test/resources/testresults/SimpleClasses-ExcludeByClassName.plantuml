@@ -1,0 +1,9 @@
+@startuml
+
+class SimpleClass1 {
+}
+
+class SimpleClass3 extends SimpleClass4 {
+}
+
+@enduml

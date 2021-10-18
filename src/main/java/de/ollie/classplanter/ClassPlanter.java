@@ -67,11 +67,17 @@ public class ClassPlanter {
 
 	private static Configuration getConfigurationFromProperties() {
 		return new Configuration()
+				.setExcludeByClassName(readExcludeByClassNameFromProperties())
 				.setExplicitClasses(readExplicitClassNamesFromProperties())
 				.setExplicitPackages(readExplicitPackageNamesFromProperties())
 				.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
 				.setShowMembers(Boolean.getBoolean("classplanter.output.showMembers"))
 				.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));
+	}
+
+	private static List<String> readExcludeByClassNameFromProperties() {
+		String classNames = System.getProperty("classplanter.output.excludeByClassName");
+		return stringListSplitter.split(classNames);
 	}
 
 	private static List<String> readExplicitPackageNamesFromProperties() {

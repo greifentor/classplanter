@@ -19,6 +19,7 @@ public class Configuration {
 		NONE;
 	}
 
+    private List<String> excludeByClassName;
 	private List<String> explicitClasses;
 	private List<String> explicitPackages;
 	private PackageMode packageMode;
