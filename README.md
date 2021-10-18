@@ -72,6 +72,29 @@ Set the target file name via this option. If not set, a file "result.plantuml" i
 
 The output can be configured by setting properties.
 
+### Exclude Classes by Name
+
+Classes can be excluded by names. To configure class names which are to exclude set either a comma separated list of
+names in the properties file:
+
+```
+property name: classplanter.output.excludeByClassName
+values: ClassName[,ClassName]
+```
+or set a list of names in the YAML:
+
+```
+output:
+  excludeByClassName:
+    - ClassName
+    - ClassName
+    ...
+```
+
+Note that those configured exclusions also affect the referenced classes, which are not shown if their names matching
+one of the class names to exclude.
+
+
 ### Having Packages in the Diagram
 
 To have information about the packages in the diagram, set a package mode:

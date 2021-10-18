@@ -1,5 +1,7 @@
 package de.ollie.classplanter.yaml;
 
+import java.util.List;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,6 +17,7 @@ public class OutputConfigurationContent {
 		NONE;
 	}
 
+    private List<String> excludeByClassName;
 	private PackageMode packageMode;
 	private Boolean showMembers;
 	private Boolean uniteEqualAssociations;

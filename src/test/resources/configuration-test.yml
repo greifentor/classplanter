@@ -6,6 +6,9 @@ input:
     - de.ollie.classplanter
     - de.ollie.classplanter.model
 output:
+  excludeByClassName:
+    - AClass
+    - BClass
   packageMode: FLAT
   showMembers: true
   uniteEqualAssociations: true
