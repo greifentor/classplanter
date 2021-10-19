@@ -22,6 +22,9 @@ public class YAMLConfigurationAdder {
 				yamlConfigurationContent.getInput().getExplicitPackages(),
 				configuration::setExplicitPackages);
 		setIfInYAMLConfigurationContent(
+				yamlConfigurationContent.getOutput().getIgnoreOrphans(),
+				configuration::setIgnoreOrphans);
+		setIfInYAMLConfigurationContent(
 				yamlConfigurationContent.getOutput().getPackageMode(),
 				value -> configuration.setPackageMode(PackageMode.valueOf(value.name())));
 		setIfInYAMLConfigurationContent(

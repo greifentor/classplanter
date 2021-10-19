@@ -70,6 +70,7 @@ public class ClassPlanter {
 				.setExcludeByClassName(readExcludeByClassNameFromProperties())
 				.setExplicitClasses(readExplicitClassNamesFromProperties())
 				.setExplicitPackages(readExplicitPackageNamesFromProperties())
+				.setIgnoreOrphans(Boolean.getBoolean("classplanter.output.ignoreOrphans"))
 				.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
 				.setShowMembers(Boolean.getBoolean("classplanter.output.showMembers"))
 				.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));

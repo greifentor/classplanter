@@ -17,7 +17,8 @@ public class OutputConfigurationContent {
 		NONE;
 	}
 
-    private List<String> excludeByClassName;
+	private List<String> excludeByClassName;
+	private Boolean ignoreOrphans;
 	private PackageMode packageMode;
 	private Boolean showMembers;
 	private Boolean uniteEqualAssociations;

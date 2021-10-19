@@ -1,0 +1,16 @@
+@startuml
+
+class AClass {
+}
+
+class CClass {
+}
+
+class DClass {
+}
+
+AClass --> CClass
+
+DClass --> DClass
+
+@enduml

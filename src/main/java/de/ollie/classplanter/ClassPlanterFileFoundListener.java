@@ -194,7 +194,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
-				if (isClassNameIsOnExcludeByClassNameList(fieldDeclaration.getType())) {
+				if (isClassNameIsOnExcludeByClassNameList(manyTypeChecker.removeManyType(fieldDeclaration.getType()))) {
 					continue;
 				}
 				if (classTypeChecker.isClassType(fieldDeclaration.getType())) {
@@ -223,6 +223,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 								.setPackageName(associationData.getTo().getPackageName())
 								.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 								.setType(Type.REFERENCED);
+						System.out.println(typeData.getClassName());
 						if (!types.contains(typeData)) {
 							types.add(typeData);
 						}
