@@ -164,6 +164,23 @@ input:
     ...
 ```
 
+### Ignore Orphans
+
+To ignore all classes which are not related to any other class, set the option as listed below:
+
+Properties file:
+
+```
+property name: classplanter.output.ignoreOrphans
+values: true | false
+```
+YAML:
+
+```
+input:
+  ignoreOrphans: true | false
+```
+
 ### Show Members
 
 If the class members should be shown in the diagram, set the property as listed below to "true". This option will also

@@ -39,7 +39,8 @@ public class YAMLConfigurationContentFromYamlFileReaderTest {
 											List.of("de.ollie.classplanter", "de.ollie.classplanter.model")))
 					.setOutput(
 							new OutputConfigurationContent()
-                                    .setExcludeByClassName(List.of("AClass", "BClass"))
+									.setExcludeByClassName(List.of("AClass", "BClass"))
+									.setIgnoreOrphans(true)
 									.setPackageMode(PackageMode.FLAT)
 									.setShowMembers(true)
 									.setUniteEqualAssociations(true));

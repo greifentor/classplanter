@@ -1,11 +1,13 @@
 package de.ollie.classplanter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.ollie.classplanter.Configuration.PackageMode;
 import de.ollie.classplanter.model.AssociationData;
 import de.ollie.classplanter.model.AssociationData.AssociationType;
+import de.ollie.classplanter.model.ClassKeyData;
 import de.ollie.classplanter.model.MemberData;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
@@ -26,17 +28,26 @@ public class PlantUMLClassDiagramCreator {
 				+ "{1}" //
 				+ "@enduml" //
 		;
-		code = code.replace("{0}", getClassCode(fileFoundListener.getClasses(), outputConfiguration));
+		code = code
+				.replace(
+						"{0}",
+						getClassCode(
+								fileFoundListener.getClasses(),
+								fileFoundListener.getAssociations(),
+								outputConfiguration));
 		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations(), outputConfiguration));
 		return code;
 	}
 
-	private String getClassCode(List<TypeData> classes, Configuration outputConfiguration) {
+	private String getClassCode(List<TypeData> classes, List<AssociationData> associations,
+			Configuration configuration) {
 		List<TypeData> filteredClasses = classes
 				.stream()
-				.filter(typeData -> isExplicitPackage(typeData.getPackageName(), outputConfiguration))
+				.filter(
+						typeData -> isExplicitPackage(typeData.getPackageName(), configuration)
+								&& !isExcludedOrphan(typeData, associations, configuration))
 				.collect(Collectors.toList());
-		if (outputConfiguration.getPackageMode() == PackageMode.FLAT) {
+		if (configuration.getPackageMode() == PackageMode.FLAT) {
 			List<TypeData> types = filteredClasses
 					.stream()
 					.sorted(
@@ -54,8 +65,8 @@ public class PlantUMLClassDiagramCreator {
 					previousPackageName = typeData.getPackageName();
 					code += "package " + typeData.getPackageName() + " {\n\n";
 				}
-				code += "\t" + createClassHeader(typeData) + " {\n"
-						+ createMemberCode(typeData, outputConfiguration, true) + "\t}\n\n";
+				code += "\t" + createClassHeader(typeData) + " {\n" + createMemberCode(typeData, configuration, true)
+						+ "\t}\n\n";
 			}
 			return code + "}\n";
 		}
@@ -66,9 +77,27 @@ public class PlantUMLClassDiagramCreator {
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
 				.map(
 						typeData -> createClassHeader(typeData) + " {\n"
-								+ createMemberCode(typeData, outputConfiguration, false) + "}\n")
+								+ createMemberCode(typeData, configuration, false) + "}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
+	}
+
+	private boolean isExcludedOrphan(TypeData typeData, List<AssociationData> associations,
+			Configuration configuration) {
+		return !configuration.isIgnoreOrphans() ? false : isAnOrphan(typeData, associations);
+	}
+
+	private boolean isAnOrphan(TypeData typeData, List<AssociationData> associations) {
+		return !associations
+				.stream()
+				.anyMatch(
+						association -> matches(association.getFrom(), typeData)
+								|| matches(association.getTo(), typeData));
+	}
+
+	private boolean matches(ClassKeyData classKey, TypeData typeData) {
+		return Objects.equals(classKey.getClassName(), typeData.getClassName())
+				&& Objects.equals(classKey.getPackageName(), typeData.getPackageName());
 	}
 
 	private String createClassHeader(TypeData typeData) {

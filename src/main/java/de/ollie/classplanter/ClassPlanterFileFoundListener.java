@@ -194,7 +194,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
-				if (isClassNameIsOnExcludeByClassNameList(fieldDeclaration.getType())) {
+				if (isClassNameIsOnExcludeByClassNameList(manyTypeChecker.removeManyType(fieldDeclaration.getType()))) {
 					continue;
 				}
 				if (classTypeChecker.isClassType(fieldDeclaration.getType())) {

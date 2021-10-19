@@ -53,7 +53,8 @@ public class YAMLConfigurationAdderTest {
 									.setExplicitPackages(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
 					.setOutput(
 							new OutputConfigurationContent()
-                                    .setExcludeByClassName(List.of(EXCLUDE_CLASS_NAME_0))
+									.setIgnoreOrphans(true)
+                  .setExcludeByClassName(List.of(EXCLUDE_CLASS_NAME_0))
 									.setPackageMode(PACKAGE_MODE)
 									.setShowMembers(SHOW_MEMBERS)
 									.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS));
@@ -61,6 +62,7 @@ public class YAMLConfigurationAdderTest {
                     .setExcludeByClassName(List.of(EXCLUDE_CLASS_NAME_0))
 					.setExplicitClasses(new ArrayList<>(List.of(EXPLICIT_CLASS_NAME_0, EXPLICIT_CLASS_NAME_1)))
 					.setExplicitPackages(new ArrayList<>(List.of(EXPLICIT_PACKAGE_NAME_0, EXPLICIT_PACKAGE_NAME_1)))
+					.setIgnoreOrphans(true)
 					.setPackageMode(Configuration.PackageMode.FLAT)
 					.setShowMembers(true)
 					.setUniteEqualAssociations(UNITE_EQUAL_ASSOCIATIONS);

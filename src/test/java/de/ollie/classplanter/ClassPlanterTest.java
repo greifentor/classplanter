@@ -441,7 +441,7 @@ public class ClassPlanterTest {
 					.main(
 							new String[] {
 									"-sf",
-									"src/test/resources/testsources/simple-association",
+									"src/test/resources/testsources/exclude-association",
 									"-tf",
 									tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
@@ -465,10 +465,29 @@ public class ClassPlanterTest {
 					.main(
 							new String[] {
 									"-sf",
-									"src/test/resources/testsources/simple-association",
+									"src/test/resources/testsources/exclude-association",
 									"-tf",
 									tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersForIgnoreOrphans_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/IgnoreOrphans.plantuml"));
+			System.setProperty("classplanter.output.ignoreOrphans", "true");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/ignore-orphans",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.ignoreOrphans");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);

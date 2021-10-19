@@ -19,11 +19,17 @@ public class YAMLConfigurationAdder {
                 yamlConfigurationContent.getOutput().getExcludeByClassName(),
                 configuration::setExcludeByClassName);
 		setIfInYAMLConfigurationContent(
+				yamlConfigurationContent.getOutput().getExcludeByClassName(),
+				configuration::setExcludeByClassName);
+		setIfInYAMLConfigurationContent(
 				yamlConfigurationContent.getInput().getExplicitClasses(),
 				configuration::setExplicitClasses);
 		setIfInYAMLConfigurationContent(
 				yamlConfigurationContent.getInput().getExplicitPackages(),
 				configuration::setExplicitPackages);
+		setIfInYAMLConfigurationContent(
+				yamlConfigurationContent.getOutput().getIgnoreOrphans(),
+				configuration::setIgnoreOrphans);
 		setIfInYAMLConfigurationContent(
 				yamlConfigurationContent.getOutput().getPackageMode(),
 				value -> configuration.setPackageMode(PackageMode.valueOf(value.name())));

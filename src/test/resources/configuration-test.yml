@@ -9,6 +9,7 @@ output:
   excludeByClassName:
     - AClass
     - BClass
+  ignoreOrphans: true
   packageMode: FLAT
   showMembers: true
   uniteEqualAssociations: true
