@@ -223,7 +223,6 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 								.setPackageName(associationData.getTo().getPackageName())
 								.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 								.setType(Type.REFERENCED);
-						System.out.println(typeData.getClassName());
 						if (!types.contains(typeData)) {
 							types.add(typeData);
 						}
