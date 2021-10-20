@@ -70,6 +70,7 @@ public class ClassPlanter {
 				.setExcludeByClassName(readExcludeByClassNameFromProperties())
 				.setExplicitClasses(readExplicitClassNamesFromProperties())
 				.setExplicitPackages(readExplicitPackageNamesFromProperties())
+                .setHandleEnumsAsSimpleTypes(Boolean.getBoolean("classplanter.output.handleEnumsAsSimpleTypes"))
 				.setIgnoreOrphans(Boolean.getBoolean("classplanter.output.ignoreOrphans"))
 				.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
 				.setShowMembers(Boolean.getBoolean("classplanter.output.showMembers"))

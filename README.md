@@ -97,6 +97,22 @@ one of the class names to exclude.
 Exclusions also exclude implicitly included classes.
 
 
+### Handle Enums as Simple Classes
+
+To handle enums as simple Classes like Strings, set the option as shown below.
+
+```
+property name: classplanter.output.handleEnumsAsSimpleTypes
+values: true | false
+```
+or in the YAML:
+
+```
+output:
+  handleEnumsAsSimpleTypes: true | false
+```
+
+
 ### Having Packages in the Diagram
 
 To have information about the packages in the diagram, set a package mode:

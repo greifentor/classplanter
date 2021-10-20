@@ -525,4 +525,32 @@ public class ClassPlanterTest {
 
 	}
 
+    @Nested
+    class HandleEnumsAsSimpleTypes {
+
+        @Test
+        void passParametersToHandleEnumsAsSimpleTypes_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+                throws Exception {
+            // Prepare
+            String expected =
+                    Files.readString(Path.of("src/test/resources/testresults/HandleEnumsAsSimpleTypes.plantuml"));
+            System.setProperty("classplanter.output.handleEnumsAsSimpleTypes", "true");
+            System.setProperty("classplanter.output.showMembers", "true");
+            // Run
+            ClassPlanter
+                    .main(
+                            new String[] {
+                                    "-sf",
+                                    "src/test/resources/testsources/handle-enums-as-simple-types",
+                                    "-tf",
+                                    tempDir.toString() + "/result.plantuml" });
+            System.clearProperty("classplanter.output.handleEnumsAsSimpleTypes");
+            System.clearProperty("classplanter.output.showMembers");
+            String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+            // Check
+            assertEquals(expected, returned);
+        }
+
+    }
+
 }

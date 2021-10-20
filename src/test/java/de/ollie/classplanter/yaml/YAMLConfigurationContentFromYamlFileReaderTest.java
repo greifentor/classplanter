@@ -40,6 +40,7 @@ public class YAMLConfigurationContentFromYamlFileReaderTest {
 					.setOutput(
 							new OutputConfigurationContent()
 									.setExcludeByClassName(List.of("AClass", "BClass"))
+                                    .setHandleEnumsAsSimpleTypes(true)
 									.setIgnoreOrphans(true)
 									.setPackageMode(PackageMode.FLAT)
 									.setShowMembers(true)

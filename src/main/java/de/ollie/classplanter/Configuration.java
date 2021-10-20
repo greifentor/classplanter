@@ -22,6 +22,7 @@ public class Configuration {
 	private List<String> excludeByClassName;
 	private List<String> explicitClasses;
 	private List<String> explicitPackages;
+    private boolean handleEnumsAsSimpleTypes;
 	private boolean ignoreOrphans;
 	private PackageMode packageMode;
 	private boolean showMembers;
