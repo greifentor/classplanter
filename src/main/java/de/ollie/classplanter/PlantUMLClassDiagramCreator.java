@@ -189,7 +189,10 @@ public class PlantUMLClassDiagramCreator {
                                 && isExplicitPackage(associationData.getTo().getPackageName(), outputConfiguration))
 				.map(
 						associationData -> getAssociation(associationData)
-								+ (outputConfiguration.isShowMembers() ? " : " + associationData.getFieldName() : "")
+                                + (outputConfiguration.isShowMembers()
+                                        && !outputConfiguration.isUniteEqualAssociations()
+                                                ? " : " + associationData.getFieldName()
+                                                : "")
 								+ "\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
