@@ -84,20 +84,22 @@ public class PlantUMLClassDiagramCreator {
 
 	private boolean isExcludedOrphan(TypeData typeData, List<AssociationData> associations,
 			Configuration configuration) {
-		return !configuration.isIgnoreOrphans() ? false : isAnOrphan(typeData, associations);
+        return !configuration.isIgnoreOrphans() ? false : isAnOrphan(typeData, associations, configuration);
 	}
 
-	private boolean isAnOrphan(TypeData typeData, List<AssociationData> associations) {
+    private boolean isAnOrphan(TypeData typeData, List<AssociationData> associations, Configuration configuration) {
 		return !associations
 				.stream()
 				.anyMatch(
-						association -> matches(association.getFrom(), typeData)
-								|| matches(association.getTo(), typeData));
+                        association -> (matches(association.getFrom(), typeData)
+                                || matches(association.getTo(), typeData))
+                                && (isExplicitPackage(association.getFrom().getPackageName(), configuration)
+                                        && isExplicitPackage(association.getTo().getPackageName(), configuration)));
 	}
 
-	private boolean matches(ClassKeyData classKey, TypeData typeData) {
+    private boolean matches(ClassKeyData classKey, TypeData typeData) {
 		return Objects.equals(classKey.getClassName(), typeData.getClassName())
-				&& Objects.equals(classKey.getPackageName(), typeData.getPackageName());
+                && Objects.equals(classKey.getPackageName(), typeData.getPackageName());
 	}
 
 	private String createClassHeader(TypeData typeData) {
@@ -143,7 +145,7 @@ public class PlantUMLClassDiagramCreator {
 		if (outputConfiguration.getExplicitPackages() == null) {
 			return true;
 		}
-		return outputConfiguration
+        return outputConfiguration
 				.getExplicitPackages()
 				.stream()
 				.anyMatch(packageName -> packageName.equals(typePackageName));
@@ -183,7 +185,8 @@ public class PlantUMLClassDiagramCreator {
 				.filter(
 						associationData -> isExplicitPackage(
 								associationData.getFrom().getPackageName(),
-								outputConfiguration))
+                                outputConfiguration)
+                                && isExplicitPackage(associationData.getTo().getPackageName(), outputConfiguration))
 				.map(
 						associationData -> getAssociation(associationData)
 								+ (outputConfiguration.isShowMembers() ? " : " + associationData.getFieldName() : "")

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.ollie.blueprints.codereader.java.JavaCodeConverter;
@@ -223,7 +224,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 								.setPackageName(associationData.getTo().getPackageName())
 								.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 								.setType(Type.REFERENCED);
-						if (!types.contains(typeData)) {
+                        if (!isTypeAlreadyKnown(typeData)) {
 							types.add(typeData);
 						}
 					}
@@ -231,6 +232,14 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 			}
 		}
 		return new ArrayList<>(associations);
+	}
+
+    private boolean isTypeAlreadyKnown(TypeData typeData) {
+        return types
+                .stream()
+                .anyMatch(
+                        typeDataStored -> Objects.equals(typeDataStored.getClassName(), typeData.getClassName())
+                                && Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName()));
 	}
 
 	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,
