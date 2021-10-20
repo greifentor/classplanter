@@ -12,7 +12,7 @@
 	</parent>
 
 	<artifactId>classplanter</artifactId>
-	<version>0.5.2</version>
+	<version>0.6.0</version>
 	<packaging>jar</packaging>
 
 	<name>classplanter</name>

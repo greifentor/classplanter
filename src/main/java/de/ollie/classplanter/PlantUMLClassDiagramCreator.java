@@ -58,26 +58,33 @@ public class PlantUMLClassDiagramCreator {
 			String code = "";
 			String previousPackageName = "";
 			for (TypeData typeData : types) {
-				if (!previousPackageName.equals(typeData.getPackageName())) {
+                if (!isAClassType(typeData.getClassName(), configuration, types)) {
+                    continue;
+                }
+                if (!previousPackageName.equals(typeData.getPackageName())) {
 					if (!previousPackageName.equals("")) {
 						code += "}\n\n";
 					}
 					previousPackageName = typeData.getPackageName();
 					code += "package " + typeData.getPackageName() + " {\n\n";
 				}
-				code += "\t" + createClassHeader(typeData) + " {\n" + createMemberCode(typeData, configuration, true)
+                code += "\t" + createClassHeader(typeData)
+                        + " {\n"
+                        + createMemberCode(typeData, configuration, true, types)
 						+ "\t}\n\n";
 			}
 			return code + "}\n";
 		}
 		return filteredClasses
 				.stream()
+                .filter(typeData -> isAClassType(typeData.getClassName(), configuration, filteredClasses))
 				.sorted(
 						(typeData0,
 								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
 				.map(
 						typeData -> createClassHeader(typeData) + " {\n"
-								+ createMemberCode(typeData, configuration, false) + "}\n")
+                                + createMemberCode(typeData, configuration, false, filteredClasses)
+                                + "}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
 	}
@@ -109,21 +116,41 @@ public class PlantUMLClassDiagramCreator {
 				+ getStereotypes(typeData);
 	}
 
-	private String createMemberCode(TypeData typeData, Configuration outputConfiguration, boolean indent) {
-		return outputConfiguration.isShowMembers() ? getMembersCode(typeData, indent) : "";
+    private String createMemberCode(TypeData typeData, Configuration configuration, boolean indent,
+            List<TypeData> types) {
+        return configuration.isShowMembers() ? getMembersCode(typeData, indent, configuration, types) : "";
 	}
 
-	private String getMembersCode(TypeData typeData, boolean indent) {
+    private String getMembersCode(TypeData typeData, boolean indent, Configuration configuration,
+            List<TypeData> types) {
 		return typeData
 				.getMembers()
 				.stream()
-				.filter(member -> !classTypeChecker.isClassType(member.getType()))
+                .filter(member -> !isAClassType(member.getType(), configuration, types))
 				.sorted(this::compareMembers)
 				.map(member -> "\t" + (indent ? "\t" : "") + getMemberCode(typeData, member))
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
 				.orElse("");
 	}
+
+    private boolean isAClassType(String typeName, Configuration configuration, List<TypeData> types) {
+        if (isEnumAndShouldBeHandledAsSimpleClass(typeName, configuration, types)) {
+            return false;
+        }
+        return classTypeChecker.isClassType(typeName);
+    }
+
+    private boolean isEnumAndShouldBeHandledAsSimpleClass(String typeName, Configuration configuration,
+            List<TypeData> types) {
+        return configuration.isHandleEnumsAsSimpleTypes() && isEnumType(typeName, types);
+    }
+
+    private boolean isEnumType(String typeName, List<TypeData> types) {
+        return types
+                .stream()
+                .anyMatch(typeData -> (typeData.getType() == Type.ENUM) && (typeData.getClassName().equals(typeName)));
+    }
 
 	private int compareMembers(MemberData m0, MemberData m1) {
 		int result = m0.getVisibility().ordinal() - m1.getVisibility().ordinal();

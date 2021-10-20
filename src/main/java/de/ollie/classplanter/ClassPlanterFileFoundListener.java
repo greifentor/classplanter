@@ -190,18 +190,18 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
 			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers,
-			Configuration outputConfiguration) {
+            Configuration configuration) {
 		Collection<AssociationData> associations =
-				outputConfiguration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
+                configuration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
 				if (isClassNameIsOnExcludeByClassNameList(manyTypeChecker.removeManyType(fieldDeclaration.getType()))) {
 					continue;
 				}
-				if (classTypeChecker.isClassType(fieldDeclaration.getType())) {
+                if (isAClassType(fieldDeclaration.getType(), configuration)) {
 					AssociationData associationData = new AssociationData()
 							.setFieldName(
-									outputConfiguration.isUniteEqualAssociations() ? null : fieldDeclaration.getName())
+                                    configuration.isUniteEqualAssociations() ? null : fieldDeclaration.getName())
 							.setFrom(
 									new ClassKeyData()
 											.setClassName(typeDeclaration.getName())
@@ -217,7 +217,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 															importDeclarations)))
 							.setType(getAssociationType(fieldDeclaration.getType()));
 					associations.add(associationData);
-					if ((outputConfiguration.getPackageMode() == PackageMode.FLAT)
+                    if ((configuration.getPackageMode() == PackageMode.FLAT)
 							&& (associationData.getTo().getPackageName() != null)) {
 						TypeData typeData = new TypeData()
 								.setClassName(associationData.getTo().getClassName())
@@ -233,6 +233,23 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		}
 		return new ArrayList<>(associations);
 	}
+
+    private boolean isAClassType(String typeName, Configuration configuration) {
+        if (isEnumAndShouldBeHandledAsSimpleClass(typeName, configuration)) {
+            return false;
+        }
+        return classTypeChecker.isClassType(typeName);
+    }
+
+    private boolean isEnumAndShouldBeHandledAsSimpleClass(String typeName, Configuration configuration) {
+        return configuration.isHandleEnumsAsSimpleTypes() && isEnumType(typeName);
+    }
+
+    private boolean isEnumType(String typeName) {
+        return types
+                .stream()
+                .anyMatch(typeData -> (typeData.getType() == Type.ENUM) && (typeData.getClassName().equals(typeName)));
+    }
 
     private boolean isTypeAlreadyKnown(TypeData typeData) {
         return types

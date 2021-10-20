@@ -474,54 +474,110 @@ public class ClassPlanterTest {
 			assertEquals(expected, returned);
 		}
 
-        @Test
-        void passParametersForIgnoreOrphans_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
-            // Prepare
-            String expected = Files.readString(Path.of("src/test/resources/testresults/IgnoreOrphans.plantuml"));
-            System.setProperty("classplanter.output.ignoreOrphans", "true");
-            // Run
-            ClassPlanter
-                    .main(
-                            new String[] {
-                                    "-sf",
-                                    "src/test/resources/testsources/ignore-orphans",
-                                    "-tf",
-                                    tempDir.toString() + "/result.plantuml" });
-            System.clearProperty("classplanter.output.ignoreOrphans");
-            String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
-            // Check
-            assertEquals(expected, returned);
-        }
+		@Test
+		void passParametersForIgnoreOrphans_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files.readString(Path.of("src/test/resources/testresults/IgnoreOrphans.plantuml"));
+			System.setProperty("classplanter.output.ignoreOrphans", "true");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/ignore-orphans",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.ignoreOrphans");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
 
-        @Test
-        void passParametersForAClassDiagramWithPackageModeFLATAndExplicitPackage_createsACorrectPlantUMLFile(
-                @TempDir Path tempDir) throws Exception {
-            // Prepare
-            String expected = Files
-                    .readString(
-                            Path
-                                    .of(
-                                            "src/test/resources/testresults/ClassDiagramWithPackageModeFLATAndExplicitPackageSet.plantuml"));
-            System.setProperty("classplanter.output.packageMode", "FLAT");
-            System.setProperty("classplanter.input.includePackages", "a.test.pack.age.one,a.test.pack.age.two");
-            // Run
-            try {
-                ClassPlanter
-                        .main(
-                                new String[] {
-                                        "-sf",
-                                        "src/test/resources/testsources/class-diagram-package-mode-FLAT",
-                                        "-tf",
-                                        tempDir.toString() + "/result.plantuml" });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.setProperty("classplanter.output.packageMode", "NONE");
-            System.clearProperty("classplanter.input.includePackages");
-            String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
-            // Check
-            assertEquals(expected, returned);
-        }
+		@Test
+		void passParametersForAClassDiagramWithPackageModeFLATAndExplicitPackage_createsACorrectPlantUMLFile(
+				@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(
+							Path
+									.of(
+											"src/test/resources/testresults/ClassDiagramWithPackageModeFLATAndExplicitPackageSet.plantuml"));
+			System.setProperty("classplanter.output.packageMode", "FLAT");
+			System.setProperty("classplanter.input.includePackages", "a.test.pack.age.one,a.test.pack.age.two");
+			// Run
+			try {
+				ClassPlanter
+						.main(
+								new String[] {
+										"-sf",
+										"src/test/resources/testsources/class-diagram-package-mode-FLAT",
+										"-tf",
+										tempDir.toString() + "/result.plantuml" });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.setProperty("classplanter.output.packageMode", "NONE");
+			System.clearProperty("classplanter.input.includePackages");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+	}
+
+	@Nested
+	class HandleEnumsAsSimpleTypes {
+
+		@Test
+		void passParametersToHandleEnumsAsSimpleTypes_createsACorrectPlantUMLFile(@TempDir Path tempDir)
+				throws Exception {
+			// Prepare
+			String expected =
+					Files.readString(Path.of("src/test/resources/testresults/HandleEnumsAsSimpleTypes.plantuml"));
+			System.setProperty("classplanter.output.handleEnumsAsSimpleTypes", "true");
+			System.setProperty("classplanter.output.showMembers", "true");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/handle-enums-as-simple-types",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.handleEnumsAsSimpleTypes");
+			System.clearProperty("classplanter.output.showMembers");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParametersToHandleEnumsAsSimpleTypesWithFLATPackageMode_createsACorrectPlantUMLFile(
+				@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(
+							Path
+									.of(
+											"src/test/resources/testresults/HandleEnumsAsSimpleTypes-PackageModeFLAT.plantuml"));
+			System.setProperty("classplanter.output.handleEnumsAsSimpleTypes", "true");
+			System.setProperty("classplanter.output.packageMode", "FLAT");
+			System.setProperty("classplanter.output.showMembers", "true");
+			// Run
+			ClassPlanter
+					.main(
+							new String[] {
+									"-sf",
+									"src/test/resources/testsources/handle-enums-as-simple-types",
+									"-tf",
+									tempDir.toString() + "/result.plantuml" });
+			System.setProperty("classplanter.output.packageMode", "NONE");
+			System.clearProperty("classplanter.output.handleEnumsAsSimpleTypes");
+			System.clearProperty("classplanter.output.showMembers");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
 
 	}
 
