@@ -1,0 +1,11 @@
+@startuml
+
+package a.pack.age {
+
+	class AClass {
+		- anEnum : AnEnum
+	}
+
+}
+
+@enduml
