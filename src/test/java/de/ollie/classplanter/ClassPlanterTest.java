@@ -551,6 +551,8 @@ public class ClassPlanterTest {
             assertEquals(expected, returned);
         }
 
+        // TODO: OLI - Add a test for doing this in FLAT package mode.
+
     }
 
 }
