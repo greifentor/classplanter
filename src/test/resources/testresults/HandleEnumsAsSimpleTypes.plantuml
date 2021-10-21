@@ -2,6 +2,7 @@
 
 class AClass {
 	- anEnum : AnEnum
+	- anotherEnum : AnotherEnum
 }
 
 @enduml

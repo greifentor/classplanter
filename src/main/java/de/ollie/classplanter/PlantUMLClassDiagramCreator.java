@@ -35,7 +35,13 @@ public class PlantUMLClassDiagramCreator {
 								fileFoundListener.getClasses(),
 								fileFoundListener.getAssociations(),
 								outputConfiguration));
-		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations(), outputConfiguration));
+        code = code
+                .replace(
+                        "{1}",
+                        getAssociationCode(
+                                fileFoundListener.getAssociations(),
+                                outputConfiguration,
+                                fileFoundListener.getClasses()));
 		return code;
 	}
 
@@ -206,18 +212,19 @@ public class PlantUMLClassDiagramCreator {
 				.orElse("");
 	}
 
-	private String getAssociationCode(List<AssociationData> associations, Configuration outputConfiguration) {
+    private String getAssociationCode(List<AssociationData> associations, Configuration configuration,
+            List<TypeData> types) {
 		return associations
 				.stream()
 				.filter(
 						associationData -> isExplicitPackage(
 								associationData.getFrom().getPackageName(),
-                                outputConfiguration)
-                                && isExplicitPackage(associationData.getTo().getPackageName(), outputConfiguration))
+                                configuration)
+                                && isExplicitPackage(associationData.getTo().getPackageName(), configuration)
+                                && isAClassType(associationData.getTo().getClassName(), configuration, types))
 				.map(
 						associationData -> getAssociation(associationData)
-                                + (outputConfiguration.isShowMembers()
-                                        && !outputConfiguration.isUniteEqualAssociations()
+                                + (configuration.isShowMembers() && !configuration.isUniteEqualAssociations()
                                                 ? " : " + associationData.getFieldName()
                                                 : "")
 								+ "\n")
