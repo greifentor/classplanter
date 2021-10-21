@@ -1,6 +1,7 @@
 package de.ollie.classplanter.yaml;
 
 import lombok.Data;
+import lombok.Generated;
 import lombok.experimental.Accessors;
 
 /**
@@ -8,6 +9,7 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain = true)
 @Data
+@Generated
 public class YAMLConfigurationContent {
 
 	private InputConfigurationContent input = new InputConfigurationContent();
