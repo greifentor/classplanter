@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.ollie.blueprints.codereader.java.JavaCodeConverter;
@@ -65,36 +66,26 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		}
 		CompilationUnit compilationUnit = new JavaCodeConverter().convert(fileContent);
 		List<TypeData> compilationUnitMembers = new ArrayList<>();
-		compilationUnit
-				.getTypeDeclarations()
+		compilationUnit.getTypeDeclarations()
 				.stream()
 				.filter(this::isToImport)
-				.forEach(
-						typeDeclaration -> compilationUnitMembers
-								.add(
-										new TypeData()
-												.addSuperInterfaceNames(
-														superInterfaceAgent.getSuperInterfaceNames(typeDeclaration))
-												.setClassName(typeDeclaration.getName())
-												.setMembers(getMembers(typeDeclaration))
-												.setPackageName(compilationUnit.getPackageName())
-												.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
-												.setSuperClassName(getSuperClassName(typeDeclaration))
-												.setType(getType(typeDeclaration))));
+				.forEach(typeDeclaration -> compilationUnitMembers.add(new TypeData()
+						.addSuperInterfaceNames(superInterfaceAgent.getSuperInterfaceNames(typeDeclaration))
+						.setClassName(typeDeclaration.getName())
+						.setMembers(getMembers(typeDeclaration))
+						.setPackageName(compilationUnit.getPackageName())
+						.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
+						.setSuperClassName(getSuperClassName(typeDeclaration))
+						.setType(getType(typeDeclaration))));
 		types.addAll(compilationUnitMembers);
-		compilationUnit
-				.getTypeDeclarations()
+		compilationUnit.getTypeDeclarations()
 				.stream()
 				.filter(this::isToImportAsAssociation)
-				.forEach(
-						typeDeclaration -> associations
-								.addAll(
-										getAssociationsOfTypeDeclaration(
-												typeDeclaration,
-												compilationUnit.getPackageName(),
-												compilationUnit.getImportDeclarations(),
-												compilationUnitMembers,
-												configuration)));
+				.forEach(typeDeclaration -> associations.addAll(getAssociationsOfTypeDeclaration(typeDeclaration,
+						compilationUnit.getPackageName(),
+						compilationUnit.getImportDeclarations(),
+						compilationUnitMembers,
+						configuration)));
 	}
 
 	private boolean isToImport(TypeDeclaration typeDeclaration) {
@@ -114,18 +105,15 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private List<MemberData> getMembers(TypeDeclaration typeDeclaration) {
 		return typeDeclaration instanceof ClassDeclaration
-				? ((ClassDeclaration) typeDeclaration)
-						.getFields()
+				? ((ClassDeclaration) typeDeclaration).getFields()
 						.stream()
-						.map(
-								fieldDeclaration -> new MemberData()
-										.setName(fieldDeclaration.getName())
-										.setType(fieldDeclaration.getType())
-										.setVisibility(getVisibility(fieldDeclaration)))
+						.map(fieldDeclaration -> new MemberData().setName(fieldDeclaration.getName())
+								.setType(fieldDeclaration.getType())
+								.setVisibility(getVisibility(fieldDeclaration))
+								.setModifiers(getModifiers(fieldDeclaration)))
 						.collect(Collectors.toList())
 				: typeDeclaration instanceof EnumDeclaration
-						? ((EnumDeclaration) typeDeclaration)
-								.getIdentifiers()
+						? ((EnumDeclaration) typeDeclaration).getIdentifiers()
 								.stream()
 								.map(identifier -> new MemberData().setName(identifier))
 								.collect(Collectors.toList())
@@ -143,6 +131,23 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 			}
 		}
 		return Visibility.PACKAGE_PRIVATE;
+	}
+
+	private Set<MemberData.Modifier> getModifiers(FieldDeclaration fieldDeclaration) {
+		return fieldDeclaration.getModifiers()
+				.stream()
+				.filter(modifier -> getModifier(modifier) != null)
+				.map(modifier -> getModifier(modifier))
+				.collect(Collectors.toSet());
+	}
+
+	private MemberData.Modifier getModifier(Modifier modifier) {
+		if (modifier == Modifier.FINAL) {
+			return MemberData.Modifier.FINAL;
+		} else if (modifier == Modifier.STATIC) {
+			return MemberData.Modifier.STATIC;
+		}
+		return null;
 	}
 
 	private boolean isExplicitIncludedClass(String fileName) {
@@ -175,12 +180,10 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	public List<TypeData> getClasses() {
-		return types
-				.stream()
-				.filter(
-						typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
-								|| (typeData.getType() == Type.ENUM) || (typeData.getType() == Type.INTERFACE)
-								|| (typeData.getType() == Type.REFERENCED))
+		return types.stream()
+				.filter(typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
+						|| (typeData.getType() == Type.ENUM) || (typeData.getType() == Type.INTERFACE)
+						|| (typeData.getType() == Type.REFERENCED))
 				.collect(Collectors.toList());
 	}
 
@@ -190,41 +193,35 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
 			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers,
-            Configuration configuration) {
-		Collection<AssociationData> associations =
-                configuration.isUniteEqualAssociations() ? new HashSet<>() : new ArrayList<>();
+			Configuration configuration) {
+		Collection<AssociationData> associations = configuration.isUniteEqualAssociations()
+				? new HashSet<>()
+				: new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
 				if (isClassNameIsOnExcludeByClassNameList(manyTypeChecker.removeManyType(fieldDeclaration.getType()))) {
 					continue;
 				}
-                if (isAClassType(fieldDeclaration.getType(), configuration)) {
+				if (isAClassType(fieldDeclaration.getType(), configuration)) {
 					AssociationData associationData = new AssociationData()
-							.setFieldName(
-                                    configuration.isUniteEqualAssociations() ? null : fieldDeclaration.getName())
-							.setFrom(
-									new ClassKeyData()
-											.setClassName(typeDeclaration.getName())
-											.setPackageName(typePackageName))
-							.setTo(
-									new ClassKeyData()
-											.setClassName(manyTypeChecker.removeManyType(fieldDeclaration.getType()))
-											.setPackageName(
-													getPackageName(
-															fieldDeclaration.getType(),
-															compilationUnitMembers,
-															typePackageName,
-															importDeclarations)))
+							.setFieldName(configuration.isUniteEqualAssociations() ? null : fieldDeclaration.getName())
+							.setFrom(new ClassKeyData().setClassName(typeDeclaration.getName())
+									.setPackageName(typePackageName))
+							.setTo(new ClassKeyData()
+									.setClassName(manyTypeChecker.removeManyType(fieldDeclaration.getType()))
+									.setPackageName(getPackageName(fieldDeclaration.getType(),
+											compilationUnitMembers,
+											typePackageName,
+											importDeclarations)))
 							.setType(getAssociationType(fieldDeclaration.getType()));
 					associations.add(associationData);
-                    if ((configuration.getPackageMode() == PackageMode.FLAT)
+					if ((configuration.getPackageMode() == PackageMode.FLAT)
 							&& (associationData.getTo().getPackageName() != null)) {
-						TypeData typeData = new TypeData()
-								.setClassName(associationData.getTo().getClassName())
+						TypeData typeData = new TypeData().setClassName(associationData.getTo().getClassName())
 								.setPackageName(associationData.getTo().getPackageName())
 								.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 								.setType(Type.REFERENCED);
-                        if (!isTypeAlreadyKnown(typeData)) {
+						if (!isTypeAlreadyKnown(typeData)) {
 							types.add(typeData);
 						}
 					}
@@ -234,36 +231,32 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		return new ArrayList<>(associations);
 	}
 
-    private boolean isAClassType(String typeName, Configuration configuration) {
-        if (isEnumAndShouldBeHandledAsSimpleClass(typeName, configuration)) {
-            return false;
-        }
-        return classTypeChecker.isClassType(typeName);
-    }
+	private boolean isAClassType(String typeName, Configuration configuration) {
+		if (isEnumAndShouldBeHandledAsSimpleClass(typeName, configuration)) {
+			return false;
+		}
+		return classTypeChecker.isClassType(typeName);
+	}
 
-    private boolean isEnumAndShouldBeHandledAsSimpleClass(String typeName, Configuration configuration) {
-        return configuration.isHandleEnumsAsSimpleTypes() && isEnumType(typeName);
-    }
+	private boolean isEnumAndShouldBeHandledAsSimpleClass(String typeName, Configuration configuration) {
+		return configuration.isHandleEnumsAsSimpleTypes() && isEnumType(typeName);
+	}
 
-    private boolean isEnumType(String typeName) {
-        return types
-                .stream()
-                .anyMatch(typeData -> (typeData.getType() == Type.ENUM) && (typeData.getClassName().equals(typeName)));
-    }
+	private boolean isEnumType(String typeName) {
+		return types.stream()
+				.anyMatch(typeData -> (typeData.getType() == Type.ENUM) && (typeData.getClassName().equals(typeName)));
+	}
 
-    private boolean isTypeAlreadyKnown(TypeData typeData) {
-        return types
-                .stream()
-                .anyMatch(
-                        typeDataStored -> Objects.equals(typeDataStored.getClassName(), typeData.getClassName())
-                                && Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName()));
+	private boolean isTypeAlreadyKnown(TypeData typeData) {
+		return types.stream()
+				.anyMatch(typeDataStored -> Objects.equals(typeDataStored.getClassName(), typeData.getClassName())
+						&& Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName()));
 	}
 
 	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,
 			String compilationUnitPackageName, List<ImportDeclaration> importDeclarations) {
 		return packageAgent
-				.findPackageNameForType(
-						typeName,
+				.findPackageNameForType(typeName,
 						compilationUnitMembers,
 						compilationUnitPackageName,
 						importDeclarations)

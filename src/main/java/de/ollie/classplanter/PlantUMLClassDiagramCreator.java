@@ -8,7 +8,6 @@ import de.ollie.classplanter.Configuration.PackageMode;
 import de.ollie.classplanter.model.AssociationData;
 import de.ollie.classplanter.model.AssociationData.AssociationType;
 import de.ollie.classplanter.model.ClassKeyData;
-import de.ollie.classplanter.model.MemberData;
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
 
@@ -18,7 +17,7 @@ import de.ollie.classplanter.model.TypeData.Type;
 public class PlantUMLClassDiagramCreator {
 
 	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
-	private static VisibilityToPlantUMLConverter visibilityToPlantUMLConverter = new VisibilityToPlantUMLConverter();
+	private static MembersToPlantUMLConverter membersToPlantUMLConverter = new MembersToPlantUMLConverter();
 
 	public String create(ClassPlanterFileFoundListener fileFoundListener, Configuration outputConfiguration) {
 		String code = "@startuml\n" //
@@ -28,158 +27,84 @@ public class PlantUMLClassDiagramCreator {
 				+ "{1}" //
 				+ "@enduml" //
 		;
-		code = code
-				.replace(
-						"{0}",
-						getClassCode(
-								fileFoundListener.getClasses(),
-								fileFoundListener.getAssociations(),
-								outputConfiguration));
-        code = code
-                .replace(
-                        "{1}",
-                        getAssociationCode(
-                                fileFoundListener.getAssociations(),
-                                outputConfiguration,
-                                fileFoundListener.getClasses()));
+		code = code.replace("{0}",
+				getClassCode(fileFoundListener.getClasses(), fileFoundListener.getAssociations(), outputConfiguration));
+		code = code.replace("{1}",
+				getAssociationCode(fileFoundListener.getAssociations(),
+						outputConfiguration,
+						fileFoundListener.getClasses()));
 		return code;
 	}
 
 	private String getClassCode(List<TypeData> classes, List<AssociationData> associations,
 			Configuration configuration) {
-		List<TypeData> filteredClasses = classes
-				.stream()
-				.filter(
-						typeData -> isExplicitPackage(typeData.getPackageName(), configuration)
-								&& !isExcludedOrphan(typeData, associations, configuration))
+		List<TypeData> filteredClasses = classes.stream()
+				.filter(typeData -> isExplicitPackage(typeData.getPackageName(), configuration)
+						&& !isExcludedOrphan(typeData, associations, configuration))
 				.collect(Collectors.toList());
 		if (configuration.getPackageMode() == PackageMode.FLAT) {
-			List<TypeData> types = filteredClasses
-					.stream()
-					.sorted(
-							(typeData0, typeData1) -> typeData0
-									.getQualifiedName()
-									.compareToIgnoreCase(typeData1.getQualifiedName()))
+			List<TypeData> types = filteredClasses.stream()
+					.sorted((typeData0, typeData1) -> typeData0.getQualifiedName()
+							.compareToIgnoreCase(typeData1.getQualifiedName()))
 					.collect(Collectors.toList());
 			String code = "";
 			String previousPackageName = "";
 			for (TypeData typeData : types) {
-                if (!isAClassType(typeData.getClassName(), configuration, types)) {
-                    continue;
-                }
-                if (!previousPackageName.equals(typeData.getPackageName())) {
+				if (!classTypeChecker.isAClassType(typeData.getClassName(), configuration, types)) {
+					continue;
+				}
+				if (!previousPackageName.equals(typeData.getPackageName())) {
 					if (!previousPackageName.equals("")) {
 						code += "}\n\n";
 					}
 					previousPackageName = typeData.getPackageName();
 					code += "package " + typeData.getPackageName() + " {\n\n";
 				}
-                code += "\t" + createClassHeader(typeData)
-                        + " {\n"
-                        + createMemberCode(typeData, configuration, true, types)
-						+ "\t}\n\n";
+				code += "\t" + createClassHeader(typeData) + " {\n"
+						+ membersToPlantUMLConverter.createMemberCode(typeData, configuration, true, types) + "\t}\n\n";
 			}
 			return code + "}\n";
 		}
-		return filteredClasses
-				.stream()
-                .filter(typeData -> isAClassType(typeData.getClassName(), configuration, filteredClasses))
-				.sorted(
-						(typeData0,
-								typeData1) -> typeData0.getClassName().compareToIgnoreCase(typeData1.getClassName()))
-				.map(
-						typeData -> createClassHeader(typeData) + " {\n"
-                                + createMemberCode(typeData, configuration, false, filteredClasses)
-                                + "}\n")
+		return filteredClasses.stream()
+				.filter(typeData -> classTypeChecker
+						.isAClassType(typeData.getClassName(), configuration, filteredClasses))
+				.sorted((typeData0, typeData1) -> typeData0.getClassName()
+						.compareToIgnoreCase(typeData1.getClassName()))
+				.map(typeData -> createClassHeader(typeData) + " {\n"
+						+ membersToPlantUMLConverter.createMemberCode(typeData, configuration, false, filteredClasses)
+						+ "}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.orElse("");
 	}
 
 	private boolean isExcludedOrphan(TypeData typeData, List<AssociationData> associations,
 			Configuration configuration) {
-        return !configuration.isIgnoreOrphans() ? false : isAnOrphan(typeData, associations, configuration);
+		return !configuration.isIgnoreOrphans() ? false : isAnOrphan(typeData, associations, configuration);
 	}
 
-    private boolean isAnOrphan(TypeData typeData, List<AssociationData> associations, Configuration configuration) {
-		return !associations
-				.stream()
-				.anyMatch(
-                        association -> (matches(association.getFrom(), typeData)
-                                || matches(association.getTo(), typeData))
-                                && (isExplicitPackage(association.getFrom().getPackageName(), configuration)
-                                        && isExplicitPackage(association.getTo().getPackageName(), configuration)));
+	private boolean isAnOrphan(TypeData typeData, List<AssociationData> associations, Configuration configuration) {
+		return !associations.stream()
+				.anyMatch(association -> (matches(association.getFrom(), typeData)
+						|| matches(association.getTo(), typeData))
+						&& (isExplicitPackage(association.getFrom().getPackageName(), configuration)
+								&& isExplicitPackage(association.getTo().getPackageName(), configuration)));
 	}
 
-    private boolean matches(ClassKeyData classKey, TypeData typeData) {
+	private boolean matches(ClassKeyData classKey, TypeData typeData) {
 		return Objects.equals(classKey.getClassName(), typeData.getClassName())
-                && Objects.equals(classKey.getPackageName(), typeData.getPackageName());
+				&& Objects.equals(classKey.getPackageName(), typeData.getPackageName());
 	}
 
 	private String createClassHeader(TypeData typeData) {
-		return getTypeKeyWord(typeData) + typeData.getClassName()
-				+ getSuperClassExtension(typeData)
-				+ getSuperInterfaceImplementations(typeData)
-				+ getStereotypes(typeData);
-	}
-
-    private String createMemberCode(TypeData typeData, Configuration configuration, boolean indent,
-            List<TypeData> types) {
-        return configuration.isShowMembers() ? getMembersCode(typeData, indent, configuration, types) : "";
-	}
-
-    private String getMembersCode(TypeData typeData, boolean indent, Configuration configuration,
-            List<TypeData> types) {
-		return typeData
-				.getMembers()
-				.stream()
-                .filter(member -> !isAClassType(member.getType(), configuration, types))
-				.sorted(this::compareMembers)
-				.map(member -> "\t" + (indent ? "\t" : "") + getMemberCode(typeData, member))
-				.reduce((s0, s1) -> s0 + "\n" + s1)
-				.map(s -> s + "\n")
-				.orElse("");
-	}
-
-    private boolean isAClassType(String typeName, Configuration configuration, List<TypeData> types) {
-        if (isEnumAndShouldBeHandledAsSimpleClass(typeName, configuration, types)) {
-            return false;
-        }
-        return classTypeChecker.isClassType(typeName);
-    }
-
-    private boolean isEnumAndShouldBeHandledAsSimpleClass(String typeName, Configuration configuration,
-            List<TypeData> types) {
-        return configuration.isHandleEnumsAsSimpleTypes() && isEnumType(typeName, types);
-    }
-
-    private boolean isEnumType(String typeName, List<TypeData> types) {
-        return types
-                .stream()
-                .anyMatch(typeData -> (typeData.getType() == Type.ENUM) && (typeData.getClassName().equals(typeName)));
-    }
-
-	private int compareMembers(MemberData m0, MemberData m1) {
-		int result = m0.getVisibility().ordinal() - m1.getVisibility().ordinal();
-		if (result == 0) {
-			result = m0.getName().compareTo(m1.getName());
-		}
-		return result;
-	}
-
-	private String getMemberCode(TypeData typeData, MemberData member) {
-		if (typeData.getType() == Type.ENUM) {
-			return member.getName();
-		}
-		return visibilityToPlantUMLConverter.getPlantUMLString(member.getVisibility()) + " " + member.getName() + " : "
-				+ member.getType();
+		return getTypeKeyWord(typeData) + typeData.getClassName() + getSuperClassExtension(typeData)
+				+ getSuperInterfaceImplementations(typeData) + getStereotypes(typeData);
 	}
 
 	private boolean isExplicitPackage(String typePackageName, Configuration outputConfiguration) {
 		if (outputConfiguration.getExplicitPackages() == null) {
 			return true;
 		}
-        return outputConfiguration
-				.getExplicitPackages()
+		return outputConfiguration.getExplicitPackages()
 				.stream()
 				.anyMatch(packageName -> packageName.equals(typePackageName));
 	}
@@ -198,36 +123,32 @@ public class PlantUMLClassDiagramCreator {
 	}
 
 	private String getSuperInterfaceImplementations(TypeData typeData) {
-		String interfaceNames =
-				typeData.getSuperInterfaceNames().stream().reduce((s0, s1) -> s0 + ", " + s1).orElse("");
+		String interfaceNames = typeData.getSuperInterfaceNames()
+				.stream()
+				.reduce((s0, s1) -> s0 + ", " + s1)
+				.orElse("");
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
 	}
 
 	private String getStereotypes(TypeData typeData) {
-		return typeData
-				.getStereotypes()
+		return typeData.getStereotypes()
 				.stream()
 				.map(s -> " << " + s + " >>")
 				.reduce((s0, s1) -> s0 + ", " + s1)
 				.orElse("");
 	}
 
-    private String getAssociationCode(List<AssociationData> associations, Configuration configuration,
-            List<TypeData> types) {
-		return associations
-				.stream()
-				.filter(
-						associationData -> isExplicitPackage(
-								associationData.getFrom().getPackageName(),
-                                configuration)
-                                && isExplicitPackage(associationData.getTo().getPackageName(), configuration)
-                                && isAClassType(associationData.getTo().getClassName(), configuration, types))
-				.map(
-						associationData -> getAssociation(associationData)
-                                + (configuration.isShowMembers() && !configuration.isUniteEqualAssociations()
-                                                ? " : " + associationData.getFieldName()
-                                                : "")
-								+ "\n")
+	private String getAssociationCode(List<AssociationData> associations, Configuration configuration,
+			List<TypeData> types) {
+		return associations.stream()
+				.filter(associationData -> isExplicitPackage(associationData.getFrom().getPackageName(), configuration)
+						&& isExplicitPackage(associationData.getTo().getPackageName(), configuration)
+						&& classTypeChecker.isAClassType(associationData.getTo().getClassName(), configuration, types))
+				.map(associationData -> getAssociation(associationData)
+						+ (configuration.isShowMembers() && !configuration.isUniteEqualAssociations()
+								? " : " + associationData.getFieldName()
+								: "")
+						+ "\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
 				.orElse("");

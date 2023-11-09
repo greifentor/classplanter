@@ -1,5 +1,8 @@
 package de.ollie.classplanter.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.Data;
 import lombok.Generated;
 import lombok.experimental.Accessors;
@@ -20,8 +23,18 @@ public class MemberData {
 		NONE;
 	}
 
+	public enum Modifier {
+		FINAL,
+		STATIC
+	}
+
 	private String name;
 	private String type;
+	private Set<Modifier> modifiers = new HashSet<>();
 	private Visibility visibility = Visibility.NONE;
+
+	public boolean isConstant() {
+		return modifiers.contains(Modifier.FINAL) && modifiers.contains(Modifier.STATIC);
+	}
 
 }
