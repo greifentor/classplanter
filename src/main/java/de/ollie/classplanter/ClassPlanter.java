@@ -66,11 +66,10 @@ public class ClassPlanter {
 	}
 
 	private static Configuration getConfigurationFromProperties() {
-		return new Configuration()
-				.setExcludeByClassName(readExcludeByClassNameFromProperties())
+		return new Configuration().setExcludeByClassName(readExcludeByClassNameFromProperties())
 				.setExplicitClasses(readExplicitClassNamesFromProperties())
 				.setExplicitPackages(readExplicitPackageNamesFromProperties())
-                .setHandleEnumsAsSimpleTypes(Boolean.getBoolean("classplanter.output.handleEnumsAsSimpleTypes"))
+				.setHandleEnumsAsSimpleTypes(Boolean.getBoolean("classplanter.output.handleEnumsAsSimpleTypes"))
 				.setIgnoreOrphans(Boolean.getBoolean("classplanter.output.ignoreOrphans"))
 				.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
 				.setShowMembers(Boolean.getBoolean("classplanter.output.showMembers"))
@@ -96,8 +95,8 @@ public class ClassPlanter {
 			throws JsonParseException, JsonMappingException, IOException {
 		if (cmd.hasOption("cnf")) {
 			String configurationFileName = cmd.getOptionValue("cnf");
-			configuration = new YAMLConfigurationAdder()
-					.add(configuration, new YAMLConfigurationContentFromYamlFileReader().read(configurationFileName));
+			configuration = new YAMLConfigurationAdder().add(configuration,
+					new YAMLConfigurationContentFromYamlFileReader().read(configurationFileName));
 		}
 		return configuration;
 	}

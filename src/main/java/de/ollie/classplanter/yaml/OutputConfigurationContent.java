@@ -20,7 +20,8 @@ public class OutputConfigurationContent {
 	}
 
 	private List<String> excludeByClassName;
-    private Boolean handleEnumsAsSimpleTypes;
+	private Boolean handleEnumsAsSimpleTypes;
+	private Boolean ignoreConstants;
 	private Boolean ignoreOrphans;
 	private PackageMode packageMode;
 	private Boolean showMembers;

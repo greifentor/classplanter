@@ -180,6 +180,23 @@ input:
     ...
 ```
 
+### Ignore Constants
+
+To ignore all constant class members.
+
+Properties file:
+
+```
+property name: classplanter.output.ignoreConstants
+values: true | false
+```
+YAML:
+
+```
+input:
+  ignoreConstants: true | false
+```
+
 ### Ignore Orphans
 
 To ignore all classes which are not related to any other class, set the option as listed below:

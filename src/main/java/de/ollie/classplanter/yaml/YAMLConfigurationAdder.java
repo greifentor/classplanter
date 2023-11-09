@@ -15,32 +15,25 @@ public class YAMLConfigurationAdder {
 	public Configuration add(Configuration configuration, YAMLConfigurationContent yamlConfigurationContent) {
 		ensure(configuration != null, "configuration cannot be null.");
 		ensure(yamlConfigurationContent != null, "YAML configuration content cannot be null.");
-        setIfInYAMLConfigurationContent(
-                yamlConfigurationContent.getOutput().getExcludeByClassName(),
-                configuration::setExcludeByClassName);
-		setIfInYAMLConfigurationContent(
-				yamlConfigurationContent.getOutput().getExcludeByClassName(),
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getExcludeByClassName(),
 				configuration::setExcludeByClassName);
-		setIfInYAMLConfigurationContent(
-				yamlConfigurationContent.getInput().getExplicitClasses(),
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getExcludeByClassName(),
+				configuration::setExcludeByClassName);
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getInput().getExplicitClasses(),
 				configuration::setExplicitClasses);
-		setIfInYAMLConfigurationContent(
-				yamlConfigurationContent.getInput().getExplicitPackages(),
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getInput().getExplicitPackages(),
 				configuration::setExplicitPackages);
-        setIfInYAMLConfigurationContent(
-                yamlConfigurationContent.getOutput().getHandleEnumsAsSimpleTypes(),
-                configuration::setHandleEnumsAsSimpleTypes);
-        setIfInYAMLConfigurationContent(
-                yamlConfigurationContent.getOutput().getIgnoreOrphans(),
-                configuration::setIgnoreOrphans);
-		setIfInYAMLConfigurationContent(
-				yamlConfigurationContent.getOutput().getPackageMode(),
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getHandleEnumsAsSimpleTypes(),
+				configuration::setHandleEnumsAsSimpleTypes);
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getIgnoreConstants(),
+				configuration::setIgnoreConstants);
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getIgnoreOrphans(),
+				configuration::setIgnoreOrphans);
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getPackageMode(),
 				value -> configuration.setPackageMode(PackageMode.valueOf(value.name())));
-		setIfInYAMLConfigurationContent(
-				yamlConfigurationContent.getOutput().getShowMembers(),
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getShowMembers(),
 				configuration::setShowMembers);
-		setIfInYAMLConfigurationContent(
-				yamlConfigurationContent.getOutput().getUniteEqualAssociations(),
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getUniteEqualAssociations(),
 				configuration::setUniteEqualAssociations);
 		return configuration;
 	}
