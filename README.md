@@ -234,6 +234,23 @@ output:
 
 Setting this option will suspend the option to unite equal associations.
 
+### Suppress Final Keyword
+
+Suppresses the "final" keyword in the PlantUml output for final members.
+
+Properties file:
+
+```
+property name: classplanter.output.suppressFinal
+values: true | false
+```
+YAML:
+
+```
+input:
+  suppressFinal: true | false
+```
+
 ### Unite Equal Associations
 
 To unite equal associations set the property listed below to "true".

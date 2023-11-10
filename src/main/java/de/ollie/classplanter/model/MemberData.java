@@ -33,8 +33,16 @@ public class MemberData {
 	private Set<Modifier> modifiers = new HashSet<>();
 	private Visibility visibility = Visibility.NONE;
 
+	public boolean isFinal() {
+		return modifiers.contains(Modifier.FINAL);
+	}
+
+	public boolean isStatic() {
+		return modifiers.contains(Modifier.STATIC);
+	}
+
 	public boolean isConstant() {
-		return modifiers.contains(Modifier.FINAL) && modifiers.contains(Modifier.STATIC);
+		return isFinal() && isStatic();
 	}
 
 }

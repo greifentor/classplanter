@@ -25,6 +25,7 @@ public class OutputConfigurationContent {
 	private Boolean ignoreOrphans;
 	private PackageMode packageMode;
 	private Boolean showMembers;
+	private Boolean suppressFinal;
 	private Boolean uniteEqualAssociations;
 
 }

@@ -58,6 +58,55 @@ class MembersToPlantUMLConverterTest {
 		}
 
 		@Test
+		void returnsACorrectString_passingTypeDataWithAStaticMember() {
+			// Prepare
+			String expected = "	+ {static} " + MEMBER_NAME + " : " + TYPE_NAME + "\n";
+			TypeData passed = new TypeData().setClassName(CLASS_NAME)
+					.setMembers(List.of(new MemberData().setName(MEMBER_NAME)
+							.setType(TYPE_NAME)
+							.setVisibility(Visibility.PUBLIC)
+							.setModifiers(Set.of(MemberData.Modifier.STATIC))));
+			when(configuration.isShowMembers()).thenReturn(true);
+			// Run
+			String returned = unitUnderTest.createMemberCode(passed, configuration, false, List.of());
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void returnsACorrectString_passingTypeDataWithAFinalMember() {
+			// Prepare
+			String expected = "	+ final " + MEMBER_NAME + " : " + TYPE_NAME + "\n";
+			TypeData passed = new TypeData().setClassName(CLASS_NAME)
+					.setMembers(List.of(new MemberData().setName(MEMBER_NAME)
+							.setType(TYPE_NAME)
+							.setVisibility(Visibility.PUBLIC)
+							.setModifiers(Set.of(MemberData.Modifier.FINAL))));
+			when(configuration.isShowMembers()).thenReturn(true);
+			// Run
+			String returned = unitUnderTest.createMemberCode(passed, configuration, false, List.of());
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void returnsACorrectString_passingTypeDataWithAFinalMemberButIsSuppressFinalSet() {
+			// Prepare
+			String expected = "	+ " + MEMBER_NAME + " : " + TYPE_NAME + "\n";
+			TypeData passed = new TypeData().setClassName(CLASS_NAME)
+					.setMembers(List.of(new MemberData().setName(MEMBER_NAME)
+							.setType(TYPE_NAME)
+							.setVisibility(Visibility.PUBLIC)
+							.setModifiers(Set.of(MemberData.Modifier.FINAL))));
+			when(configuration.isShowMembers()).thenReturn(true);
+			when(configuration.isSuppressFinal()).thenReturn(true);
+			// Run
+			String returned = unitUnderTest.createMemberCode(passed, configuration, false, List.of());
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
 		void returnsAnEmptyString_passingTypeDataWithAStaticFinalMemberWithConfigurationIgnoreConstants() {
 			// Prepare
 			TypeData passed = new TypeData().setClassName(CLASS_NAME)

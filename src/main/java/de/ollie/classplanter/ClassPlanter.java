@@ -73,6 +73,7 @@ public class ClassPlanter {
 				.setIgnoreOrphans(Boolean.getBoolean("classplanter.output.ignoreOrphans"))
 				.setPackageMode(PackageMode.valueOf(System.getProperty("classplanter.output.packageMode", "NONE")))
 				.setShowMembers(Boolean.getBoolean("classplanter.output.showMembers"))
+				.setSuppressFinal(Boolean.getBoolean("classplanter.output.suppressFinal"))
 				.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));
 	}
 

@@ -27,6 +27,7 @@ public class Configuration {
 	private boolean ignoreOrphans;
 	private PackageMode packageMode;
 	private boolean showMembers;
+	private boolean suppressFinal;
 	private boolean uniteEqualAssociations;
 
 }

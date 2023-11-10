@@ -1,0 +1,15 @@
+@startuml
+
+class AClass {
+	+ {static} final PUBLIC_CONSTANT : String
+	# {static} final PROTECTED_CONSTANT : String
+	- aCounter : int
+	- {static} aStaticNumber : int
+	- final isFinal : boolean
+}
+
+AClass --> BClass : bClass
+
+AClass --> "*" BClass : bClasses
+
+@enduml

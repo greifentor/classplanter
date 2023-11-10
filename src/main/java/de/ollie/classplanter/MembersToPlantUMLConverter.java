@@ -25,7 +25,7 @@ public class MembersToPlantUMLConverter {
 				.filter(member -> !classTypeChecker.isAClassType(member.getType(), configuration, types))
 				.filter(member -> !configuration.isIgnoreConstants() || !member.isConstant())
 				.sorted(this::compareMembers)
-				.map(member -> "\t" + (indent ? "\t" : "") + getMemberCode(typeData, member))
+				.map(member -> "\t" + (indent ? "\t" : "") + getMemberCode(typeData, member, configuration))
 				.reduce((s0, s1) -> s0 + "\n" + s1)
 				.map(s -> s + "\n")
 				.orElse("");
@@ -39,12 +39,14 @@ public class MembersToPlantUMLConverter {
 		return result;
 	}
 
-	private String getMemberCode(TypeData typeData, MemberData member) {
+	private String getMemberCode(TypeData typeData, MemberData member, Configuration configuration) {
 		if (typeData.getType() == Type.ENUM) {
 			return member.getName();
 		}
 		return visibilityToPlantUMLConverter.getPlantUMLString(member.getVisibility()) + " "
-				+ (member.isConstant() ? "{static} final " : "") + member.getName() + " : " + member.getType();
+				+ (member.isStatic() ? "{static} " : "")
+				+ (member.isFinal() && !configuration.isSuppressFinal() ? "final " : "") + member.getName() + " : "
+				+ member.getType();
 	}
 
 }
