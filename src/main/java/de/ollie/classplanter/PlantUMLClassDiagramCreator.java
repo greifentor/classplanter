@@ -22,6 +22,7 @@ public class PlantUMLClassDiagramCreator {
 	public String create(ClassPlanterFileFoundListener fileFoundListener, Configuration outputConfiguration) {
 		String code = "@startuml\n" //
 				+ "\n" //
+				+ (outputConfiguration.isActivateRectAngular() ? "skinparam linetype ortho\n\n" : "") //
 				+ "{0}" //
 				+ "\n" //
 				+ "{1}" //
@@ -60,7 +61,7 @@ public class PlantUMLClassDiagramCreator {
 					previousPackageName = typeData.getPackageName();
 					code += "package " + typeData.getPackageName() + " {\n\n";
 				}
-				code += "\t" + createClassHeader(typeData) + " {\n"
+				code += "\t" + createClassHeader(typeData, configuration) + " {\n"
 						+ membersToPlantUMLConverter.createMemberCode(typeData, configuration, true, types) + "\t}\n\n";
 			}
 			return code + "}\n";
@@ -70,7 +71,7 @@ public class PlantUMLClassDiagramCreator {
 						.isAClassType(typeData.getClassName(), configuration, filteredClasses))
 				.sorted((typeData0, typeData1) -> typeData0.getClassName()
 						.compareToIgnoreCase(typeData1.getClassName()))
-				.map(typeData -> createClassHeader(typeData) + " {\n"
+				.map(typeData -> createClassHeader(typeData, configuration) + " {\n"
 						+ membersToPlantUMLConverter.createMemberCode(typeData, configuration, false, filteredClasses)
 						+ "}\n")
 				.reduce((s0, s1) -> s0 + "\n" + s1)
@@ -95,9 +96,9 @@ public class PlantUMLClassDiagramCreator {
 				&& Objects.equals(classKey.getPackageName(), typeData.getPackageName());
 	}
 
-	private String createClassHeader(TypeData typeData) {
-		return getTypeKeyWord(typeData) + typeData.getClassName() + getSuperClassExtension(typeData)
-				+ getSuperInterfaceImplementations(typeData) + getStereotypes(typeData);
+	private String createClassHeader(TypeData typeData, Configuration configuration) {
+		return getTypeKeyWord(typeData) + typeData.getClassName() + getSuperClassExtension(typeData, configuration)
+				+ getSuperInterfaceImplementations(typeData, configuration) + getStereotypes(typeData);
 	}
 
 	private boolean isExplicitPackage(String typePackageName, Configuration outputConfiguration) {
@@ -118,13 +119,16 @@ public class PlantUMLClassDiagramCreator {
 		return (typeData.getType() == Type.ABSTRACT_CLASS ? "abstract " : "") + "class ";
 	}
 
-	private String getSuperClassExtension(TypeData typeData) {
-		return typeData.getSuperClassName() != null ? " extends " + typeData.getSuperClassName() : "";
+	private String getSuperClassExtension(TypeData typeData, Configuration configuration) {
+		return (typeData.getSuperClassName() != null) && !configuration.isClassToExclude(typeData.getSuperClassName())
+				? " extends " + typeData.getSuperClassName()
+				: "";
 	}
 
-	private String getSuperInterfaceImplementations(TypeData typeData) {
+	private String getSuperInterfaceImplementations(TypeData typeData, Configuration configuration) {
 		String interfaceNames = typeData.getSuperInterfaceNames()
 				.stream()
+				.filter(name -> !configuration.isClassToExclude(name))
 				.reduce((s0, s1) -> s0 + ", " + s1)
 				.orElse("");
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";

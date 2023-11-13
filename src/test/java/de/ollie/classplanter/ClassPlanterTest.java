@@ -305,7 +305,7 @@ public class ClassPlanterTest {
 		}
 
 		@Test
-		void passParameterForExclusionByClassName_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+		void passParameterForExclusionByClassName1_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
 			// Prepare
 			String expected = Files
 					.readString(Path.of("src/test/resources/testresults/SimpleClasses-ExcludeByClassName.plantuml"));
@@ -314,6 +314,23 @@ public class ClassPlanterTest {
 			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-classes", "-tf",
 					tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
+			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
+			// Check
+			assertEquals(expected, returned);
+		}
+
+		@Test
+		void passParameterForExclusionByClassName2_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
+			// Prepare
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/ExcludeClassAndInterface.plantuml"));
+			System.setProperty("classplanter.output.excludeByClassName", "BClass,CClass,Serializable");
+			System.setProperty("classplanter.output.showMembers", "true");
+			// Run
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/exclude-class-or-interface", "-tf",
+					tempDir.toString() + "/result.plantuml" });
+			System.clearProperty("classplanter.output.excludeByClassName");
+			System.clearProperty("classplanter.output.showMembers");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);

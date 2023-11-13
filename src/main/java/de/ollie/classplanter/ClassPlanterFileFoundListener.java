@@ -78,6 +78,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 						.setSuperClassName(getSuperClassName(typeDeclaration))
 						.setType(getType(typeDeclaration))));
 		types.addAll(compilationUnitMembers);
+		types = cleanUpTypes(types);
 		compilationUnit.getTypeDeclarations()
 				.stream()
 				.filter(this::isToImportAsAssociation)
@@ -89,18 +90,11 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	private boolean isToImport(TypeDeclaration typeDeclaration) {
-		return !isClassNameIsOnExcludeByClassNameList(typeDeclaration.getName());
-	}
-
-	private boolean isClassNameIsOnExcludeByClassNameList(String className) {
-		List<String> excludedClassNames = configuration.getExcludeByClassName();
-		return excludedClassNames == null
-				? false
-				: excludedClassNames.stream().anyMatch(excludedClassName -> excludedClassName.equals(className));
+		return !configuration.isClassToExclude(typeDeclaration.getName());
 	}
 
 	private boolean isToImportAsAssociation(TypeDeclaration typeDeclaration) {
-		return !isClassNameIsOnExcludeByClassNameList(typeDeclaration.getName());
+		return !configuration.isClassToExclude(typeDeclaration.getName());
 	}
 
 	private List<MemberData> getMembers(TypeDeclaration typeDeclaration) {
@@ -199,7 +193,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 				: new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
-				if (isClassNameIsOnExcludeByClassNameList(manyTypeChecker.removeManyType(fieldDeclaration.getType()))) {
+				if (configuration.isClassToExclude(manyTypeChecker.removeManyType(fieldDeclaration.getType()))) {
 					continue;
 				}
 				if (isAClassType(fieldDeclaration.getType(), configuration)) {
@@ -260,11 +254,29 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 						compilationUnitMembers,
 						compilationUnitPackageName,
 						importDeclarations)
-				.orElse(null);
+				.orElse(compilationUnitPackageName);
 	}
 
 	private AssociationType getAssociationType(String type) {
 		return manyTypeChecker.isManyType(type) ? AssociationType.MANY_TO_ONE : AssociationType.ONE_TO_ONE;
+	}
+
+	private List<TypeData> cleanUpTypes(List<TypeData> typeData) {
+		List<TypeData> typesToRemove = new ArrayList<>();
+		for (TypeData type : typeData) {
+			List<TypeData> sameOnes = findAllByQualifiedName(typeData, type.getQualifiedName());
+			if (sameOnes.size() > 1) {
+				sameOnes.stream()
+						.filter(td -> (td.getType() == Type.REFERENCED) || (td.getType() == Type.UNKNOWN))
+						.forEach(typesToRemove::add);
+			}
+		}
+		typesToRemove.forEach(typeData::remove);
+		return typeData;
+	}
+
+	private List<TypeData> findAllByQualifiedName(List<TypeData> typeData, String qualifiedName) {
+		return typeData.stream().filter(td -> td.getQualifiedName().equals(qualifiedName)).collect(Collectors.toList());
 	}
 
 }

@@ -19,6 +19,7 @@ public class Configuration {
 		NONE;
 	}
 
+	private boolean activateRectAngular;
 	private List<String> excludeByClassName;
 	private List<String> explicitClasses;
 	private List<String> explicitPackages;
@@ -29,5 +30,10 @@ public class Configuration {
 	private boolean showMembers;
 	private boolean suppressFinal;
 	private boolean uniteEqualAssociations;
+
+	public boolean isClassToExclude(String classNameToExclude) {
+		return (excludeByClassName != null)
+				&& excludeByClassName.stream().anyMatch(className -> className.equals(classNameToExclude));
+	}
 
 }
