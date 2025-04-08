@@ -27,12 +27,12 @@ public class PlantUMLClassDiagramCreator {
 				+ "{1}" //
 				+ "@enduml" //
 		;
+		System.out.println("\nREAD CLASSES:");
+		fileFoundListener.getClasses().forEach(System.out::println);
 		code = code.replace("{0}",
 				getClassCode(fileFoundListener.getClasses(), fileFoundListener.getAssociations(), outputConfiguration));
-		code = code.replace("{1}",
-				getAssociationCode(fileFoundListener.getAssociations(),
-						outputConfiguration,
-						fileFoundListener.getClasses()));
+		code = code.replace("{1}", getAssociationCode(fileFoundListener.getAssociations(), outputConfiguration,
+				fileFoundListener.getClasses()));
 		return code;
 	}
 
@@ -43,10 +43,8 @@ public class PlantUMLClassDiagramCreator {
 						&& !isExcludedOrphan(typeData, associations, configuration))
 				.collect(Collectors.toList());
 		if (configuration.getPackageMode() == PackageMode.FLAT) {
-			List<TypeData> types = filteredClasses.stream()
-					.sorted((typeData0, typeData1) -> typeData0.getQualifiedName()
-							.compareToIgnoreCase(typeData1.getQualifiedName()))
-					.collect(Collectors.toList());
+			List<TypeData> types = filteredClasses.stream().sorted((typeData0, typeData1) -> typeData0
+					.getQualifiedName().compareToIgnoreCase(typeData1.getQualifiedName())).collect(Collectors.toList());
 			String code = "";
 			String previousPackageName = "";
 			for (TypeData typeData : types) {
@@ -66,15 +64,14 @@ public class PlantUMLClassDiagramCreator {
 			return code + "}\n";
 		}
 		return filteredClasses.stream()
-				.filter(typeData -> classTypeChecker
-						.isAClassType(typeData.getClassName(), configuration, filteredClasses))
+				.filter(typeData -> classTypeChecker.isAClassType(typeData.getClassName(), configuration,
+						filteredClasses))
 				.sorted((typeData0, typeData1) -> typeData0.getClassName()
 						.compareToIgnoreCase(typeData1.getClassName()))
 				.map(typeData -> createClassHeader(typeData) + " {\n"
 						+ membersToPlantUMLConverter.createMemberCode(typeData, configuration, false, filteredClasses)
 						+ "}\n")
-				.reduce((s0, s1) -> s0 + "\n" + s1)
-				.orElse("");
+				.reduce((s0, s1) -> s0 + "\n" + s1).orElse("");
 	}
 
 	private boolean isExcludedOrphan(TypeData typeData, List<AssociationData> associations,
@@ -83,9 +80,8 @@ public class PlantUMLClassDiagramCreator {
 	}
 
 	private boolean isAnOrphan(TypeData typeData, List<AssociationData> associations, Configuration configuration) {
-		return !associations.stream()
-				.anyMatch(association -> (matches(association.getFrom(), typeData)
-						|| matches(association.getTo(), typeData))
+		return !associations.stream().anyMatch(
+				association -> (matches(association.getFrom(), typeData) || matches(association.getTo(), typeData))
 						&& (isExplicitPackage(association.getFrom().getPackageName(), configuration)
 								&& isExplicitPackage(association.getTo().getPackageName(), configuration)));
 	}
@@ -104,8 +100,7 @@ public class PlantUMLClassDiagramCreator {
 		if (outputConfiguration.getExplicitPackages() == null) {
 			return true;
 		}
-		return outputConfiguration.getExplicitPackages()
-				.stream()
+		return outputConfiguration.getExplicitPackages().stream()
 				.anyMatch(packageName -> packageName.equals(typePackageName));
 	}
 
@@ -123,18 +118,13 @@ public class PlantUMLClassDiagramCreator {
 	}
 
 	private String getSuperInterfaceImplementations(TypeData typeData) {
-		String interfaceNames = typeData.getSuperInterfaceNames()
-				.stream()
-				.reduce((s0, s1) -> s0 + ", " + s1)
+		String interfaceNames = typeData.getSuperInterfaceNames().stream().reduce((s0, s1) -> s0 + ", " + s1)
 				.orElse("");
 		return !interfaceNames.isEmpty() ? " implements " + interfaceNames : "";
 	}
 
 	private String getStereotypes(TypeData typeData) {
-		return typeData.getStereotypes()
-				.stream()
-				.map(s -> " << " + s + " >>")
-				.reduce((s0, s1) -> s0 + ", " + s1)
+		return typeData.getStereotypes().stream().map(s -> " << " + s + " >>").reduce((s0, s1) -> s0 + ", " + s1)
 				.orElse("");
 	}
 
@@ -149,9 +139,7 @@ public class PlantUMLClassDiagramCreator {
 								? " : " + associationData.getFieldName()
 								: "")
 						+ "\n")
-				.reduce((s0, s1) -> s0 + "\n" + s1)
-				.map(s -> s + "\n")
-				.orElse("");
+				.reduce((s0, s1) -> s0 + "\n" + s1).map(s -> s + "\n").orElse("");
 	}
 
 	private String getAssociation(AssociationData association) {
