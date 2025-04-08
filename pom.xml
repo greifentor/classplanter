@@ -19,7 +19,7 @@
 	<description>A tool to create PlantUML class diagrams for while projects with filterings on the shown classes.</description>
 
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<dependencies>

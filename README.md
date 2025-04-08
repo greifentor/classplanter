@@ -32,7 +32,7 @@ The application is generally able to create a class diagram for a java source pa
 
 ### Requirements
 
-**Java:** 11+
+**Java:** 17
 
 **Maven:** 3.5+
 
