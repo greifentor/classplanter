@@ -66,26 +66,20 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		}
 		CompilationUnit compilationUnit = new JavaCodeConverter().convert(fileContent);
 		List<TypeData> compilationUnitMembers = new ArrayList<>();
-		compilationUnit.getTypeDeclarations()
-				.stream()
-				.filter(this::isToImport)
+		compilationUnit.getTypeDeclarations().stream().filter(this::isToImport)
 				.forEach(typeDeclaration -> compilationUnitMembers.add(new TypeData()
 						.addSuperInterfaceNames(superInterfaceAgent.getSuperInterfaceNames(typeDeclaration))
-						.setClassName(typeDeclaration.getName())
-						.setMembers(getMembers(typeDeclaration))
+						.setClassName(typeDeclaration.getName()).setMembers(getMembers(typeDeclaration))
 						.setPackageName(compilationUnit.getPackageName())
 						.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
-						.setSuperClassName(getSuperClassName(typeDeclaration))
-						.setType(getType(typeDeclaration))));
+						.setSuperClassName(getSuperClassName(typeDeclaration)).setType(getType(typeDeclaration))));
+		System.out.println("types:");
+		compilationUnitMembers.forEach(System.out::println);
 		types.addAll(compilationUnitMembers);
-		compilationUnit.getTypeDeclarations()
-				.stream()
-				.filter(this::isToImportAsAssociation)
-				.forEach(typeDeclaration -> associations.addAll(getAssociationsOfTypeDeclaration(typeDeclaration,
-						compilationUnit.getPackageName(),
-						compilationUnit.getImportDeclarations(),
-						compilationUnitMembers,
-						configuration)));
+		compilationUnit.getTypeDeclarations().stream().filter(this::isToImportAsAssociation)
+				.forEach(typeDeclaration -> associations
+						.addAll(getAssociationsOfTypeDeclaration(typeDeclaration, compilationUnit.getPackageName(),
+								compilationUnit.getImportDeclarations(), compilationUnitMembers, configuration)));
 	}
 
 	private boolean isToImport(TypeDeclaration typeDeclaration) {
@@ -94,8 +88,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private boolean isClassNameIsOnExcludeByClassNameList(String className) {
 		List<String> excludedClassNames = configuration.getExcludeByClassName();
-		return excludedClassNames == null
-				? false
+		return excludedClassNames == null ? false
 				: excludedClassNames.stream().anyMatch(excludedClassName -> excludedClassName.equals(className));
 	}
 
@@ -105,18 +98,14 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private List<MemberData> getMembers(TypeDeclaration typeDeclaration) {
 		return typeDeclaration instanceof ClassDeclaration
-				? ((ClassDeclaration) typeDeclaration).getFields()
-						.stream()
+				? ((ClassDeclaration) typeDeclaration).getFields().stream()
 						.map(fieldDeclaration -> new MemberData().setName(fieldDeclaration.getName())
-								.setType(fieldDeclaration.getType())
-								.setVisibility(getVisibility(fieldDeclaration))
+								.setType(fieldDeclaration.getType()).setVisibility(getVisibility(fieldDeclaration))
 								.setModifiers(getModifiers(fieldDeclaration)))
 						.collect(Collectors.toList())
 				: typeDeclaration instanceof EnumDeclaration
-						? ((EnumDeclaration) typeDeclaration).getIdentifiers()
-								.stream()
-								.map(identifier -> new MemberData().setName(identifier))
-								.collect(Collectors.toList())
+						? ((EnumDeclaration) typeDeclaration).getIdentifiers().stream()
+								.map(identifier -> new MemberData().setName(identifier)).collect(Collectors.toList())
 						: new ArrayList<>();
 	}
 
@@ -134,11 +123,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	private Set<MemberData.Modifier> getModifiers(FieldDeclaration fieldDeclaration) {
-		return fieldDeclaration.getModifiers()
-				.stream()
-				.filter(modifier -> getModifier(modifier) != null)
-				.map(modifier -> getModifier(modifier))
-				.collect(Collectors.toSet());
+		return fieldDeclaration.getModifiers().stream().filter(modifier -> getModifier(modifier) != null)
+				.map(modifier -> getModifier(modifier)).collect(Collectors.toSet());
 	}
 
 	private MemberData.Modifier getModifier(Modifier modifier) {
@@ -194,8 +180,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	private List<AssociationData> getAssociationsOfTypeDeclaration(TypeDeclaration typeDeclaration,
 			String typePackageName, List<ImportDeclaration> importDeclarations, List<TypeData> compilationUnitMembers,
 			Configuration configuration) {
-		Collection<AssociationData> associations = configuration.isUniteEqualAssociations()
-				? new HashSet<>()
+		Collection<AssociationData> associations = configuration.isUniteEqualAssociations() ? new HashSet<>()
 				: new ArrayList<>();
 		if (typeDeclaration instanceof ClassDeclaration) {
 			for (FieldDeclaration fieldDeclaration : ((ClassDeclaration) typeDeclaration).getFields()) {
@@ -209,10 +194,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 									.setPackageName(typePackageName))
 							.setTo(new ClassKeyData()
 									.setClassName(manyTypeChecker.removeManyType(fieldDeclaration.getType()))
-									.setPackageName(getPackageName(fieldDeclaration.getType(),
-											compilationUnitMembers,
-											typePackageName,
-											importDeclarations)))
+									.setPackageName(getPackageName(fieldDeclaration.getType(), compilationUnitMembers,
+											typePackageName, importDeclarations)))
 							.setType(getAssociationType(fieldDeclaration.getType()));
 					associations.add(associationData);
 					if ((configuration.getPackageMode() == PackageMode.FLAT)
@@ -255,12 +238,8 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,
 			String compilationUnitPackageName, List<ImportDeclaration> importDeclarations) {
-		return packageAgent
-				.findPackageNameForType(typeName,
-						compilationUnitMembers,
-						compilationUnitPackageName,
-						importDeclarations)
-				.orElse(null);
+		return packageAgent.findPackageNameForType(typeName, compilationUnitMembers, compilationUnitPackageName,
+				importDeclarations).orElse(null);
 	}
 
 	private AssociationType getAssociationType(String type) {
