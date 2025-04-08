@@ -231,9 +231,16 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	private boolean isTypeAlreadyKnown(TypeData typeData) {
-		return types.stream()
-				.anyMatch(typeDataStored -> Objects.equals(typeDataStored.getClassName(), typeData.getClassName())
-						&& Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName()));
+		return types.stream().anyMatch(typeDataStored -> isSameType(typeDataStored, typeData));
+	}
+
+	private boolean isSameType(TypeData typeDataStored, TypeData typeData) {
+		if ("BClass".equals(typeData.getClassName())) {
+			System.out.println("b0: " + Objects.equals(typeDataStored.getClassName(), typeData.getClassName()));
+			System.out.println("b1: " + Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName()));
+		}
+		return Objects.equals(typeDataStored.getClassName(), typeData.getClassName())
+				&& Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName());
 	}
 
 	private String getPackageName(String typeName, List<TypeData> compilationUnitMembers,
