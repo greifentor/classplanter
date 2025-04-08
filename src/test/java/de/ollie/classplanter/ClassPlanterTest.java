@@ -19,13 +19,8 @@ public class ClassPlanterTest {
 			// Prepare
 			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleClass-Empty.plantuml"));
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/simple-class",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-class", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);
@@ -37,13 +32,8 @@ public class ClassPlanterTest {
 			// Prepare
 			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleClasses-Empty.plantuml"));
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/simple-classes",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-classes", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);
@@ -52,16 +42,11 @@ public class ClassPlanterTest {
 		@Test
 		void passParametersForOneInterface_createsACorrectPlantUMLFile(@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/SimpleInterface-Empty.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/SimpleInterface-Empty.plantuml"));
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/simple-interface",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-interface", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);
@@ -71,16 +56,11 @@ public class ClassPlanterTest {
 		void passParametersForImplementedInterfaces_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/InterfaceImplementations.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/InterfaceImplementations.plantuml"));
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/interface-implementations",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/interface-implementations", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);
@@ -91,13 +71,8 @@ public class ClassPlanterTest {
 			// Prepare
 			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleAssociation.plantuml"));
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/simple-association",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-association", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);
@@ -109,13 +84,8 @@ public class ClassPlanterTest {
 			// Prepare
 			String expected = Files.readString(Path.of("src/test/resources/testresults/ManyToOneAssociation.plantuml"));
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/many-to-one-association",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/many-to-one-association", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
 			assertEquals(expected, returned);
@@ -130,13 +100,11 @@ public class ClassPlanterTest {
 			System.setProperty("classplanter.output.packageMode", "FLAT");
 			// Run
 			try {
+				System.out.println("\n\n>>>>>");
 				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/class-diagram-package-mode-FLAT",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+						.main(new String[] { "-sf", "src/test/resources/testsources/class-diagram-package-mode-FLAT",
+								"-tf", tempDir.toString() + "/result.plantuml" });
+				System.out.println("<<<<<\n\n");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -150,18 +118,13 @@ public class ClassPlanterTest {
 		void passParametersWithExplicitPackageInclusion_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/ExplicitPackageInclusion.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/ExplicitPackageInclusion.plantuml"));
 			System.setProperty("classplanter.input.includePackages", "a.pack.age.one,a.pack.age.three");
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/explicit-package-inclusion",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/explicit-package-inclusion",
+						"-tf", tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -175,18 +138,13 @@ public class ClassPlanterTest {
 		void passParametersWithUnitEqualAssociationSet_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/UnitedEqualAssociations.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/UnitedEqualAssociations.plantuml"));
 			System.setProperty("classplanter.output.uniteEqualAssociations", "true");
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/united-equal-associations",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/united-equal-associations",
+						"-tf", tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -200,19 +158,13 @@ public class ClassPlanterTest {
 		void passParametersForAConfigurationFileWithUnitEqualAssociationSet_createsACorrectPlantUMLFile(
 				@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/UnitedEqualAssociations.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/UnitedEqualAssociations.plantuml"));
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-cnf",
-										"src/test/resources/configuration-classplanter-test.yml",
-										"-sf",
-										"src/test/resources/testsources/united-equal-associations",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-cnf", "src/test/resources/configuration-classplanter-test.yml",
+						"-sf", "src/test/resources/testsources/united-equal-associations", "-tf",
+						tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -225,17 +177,12 @@ public class ClassPlanterTest {
 		void passParametersForAnnotatedUtilityClasses_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/UtilityClass-Annotation.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/UtilityClass-Annotation.plantuml"));
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/utility-class-annotated",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/utility-class-annotated", "-tf",
+						tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -248,17 +195,13 @@ public class ClassPlanterTest {
 		void passParametersForUtilityClassesWithOnlyStaticMethods_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/UtilityClass-StaticMethodsOnly.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/UtilityClass-StaticMethodsOnly.plantuml"));
 			// Run
 			try {
 				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/utility-class-static-methods-only",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+						.main(new String[] { "-sf", "src/test/resources/testsources/utility-class-static-methods-only",
+								"-tf", tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -271,18 +214,14 @@ public class ClassPlanterTest {
 		void passParametersForMoreThanOneSourceFolder_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/MoreThanOneSourceFolder.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/MoreThanOneSourceFolder.plantuml"));
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/more-than-one-source-folder/folder-1,"
-												+ "src/test/resources/testsources/more-than-one-source-folder/folder-2",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf",
+						"src/test/resources/testsources/more-than-one-source-folder/folder-1,"
+								+ "src/test/resources/testsources/more-than-one-source-folder/folder-2",
+						"-tf", tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -295,19 +234,15 @@ public class ClassPlanterTest {
 		void passParametersForLimitationExplicitlyByClassName_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/ClassesLimitedExplicitlyByName.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/ClassesLimitedExplicitlyByName.plantuml"));
 			System.setProperty("classplanter.input.explicitClassNames", "a.pack.age.AClass,DClass");
 			System.setProperty("classplanter.output.packageMode", "FLAT");
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/classes-limited-explicitly-by-names",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(
+						new String[] { "-sf", "src/test/resources/testsources/classes-limited-explicitly-by-names",
+								"-tf", tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -324,13 +259,8 @@ public class ClassPlanterTest {
 			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleEnum.plantuml"));
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/simple-enum",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-enum", "-tf",
+						tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -346,13 +276,8 @@ public class ClassPlanterTest {
 			System.setProperty("classplanter.output.showMembers", "true");
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/classes-with-members",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/classes-with-members", "-tf",
+						tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -370,13 +295,8 @@ public class ClassPlanterTest {
 			System.setProperty("classplanter.output.showMembers", "true");
 			// Run
 			try {
-				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/simple-enum",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+				ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-enum", "-tf",
+						tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -393,13 +313,8 @@ public class ClassPlanterTest {
 					.readString(Path.of("src/test/resources/testresults/SimpleClasses-ExcludeByClassName.plantuml"));
 			System.setProperty("classplanter.output.excludeByClassName", "SimpleClass2,SimpleClass4");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/simple-classes",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-classes", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
@@ -413,13 +328,8 @@ public class ClassPlanterTest {
 			String expected = Files.readString(Path.of("src/test/resources/testresults/SimpleClasses-Empty.plantuml"));
 			System.setProperty("classplanter.output.excludeByClassName", "SimpleClass22,SimpleClass");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/simple-classes",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/simple-classes", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
@@ -430,20 +340,12 @@ public class ClassPlanterTest {
 		void passParametersForASimpleAssociationReferencedClassExcluded_createsACorrectPlantUMLFile(
 				@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected = Files
-					.readString(
-							Path
-									.of(
-											"src/test/resources/testresults/SimpleAssociation-ReferencedClassExcluded.plantuml"));
+			String expected = Files.readString(
+					Path.of("src/test/resources/testresults/SimpleAssociation-ReferencedClassExcluded.plantuml"));
 			System.setProperty("classplanter.output.excludeByClassName", "BClass");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/exclude-association",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/exclude-association", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
@@ -454,20 +356,12 @@ public class ClassPlanterTest {
 		void passParametersForASimpleAssociationReferencingClassExcluded_createsACorrectPlantUMLFile(
 				@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected = Files
-					.readString(
-							Path
-									.of(
-											"src/test/resources/testresults/SimpleAssociation-ReferencingClassExcluded.plantuml"));
+			String expected = Files.readString(
+					Path.of("src/test/resources/testresults/SimpleAssociation-ReferencingClassExcluded.plantuml"));
 			System.setProperty("classplanter.output.excludeByClassName", "AClass");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/exclude-association",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/exclude-association", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.excludeByClassName");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
@@ -480,13 +374,8 @@ public class ClassPlanterTest {
 			String expected = Files.readString(Path.of("src/test/resources/testresults/IgnoreOrphans.plantuml"));
 			System.setProperty("classplanter.output.ignoreOrphans", "true");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/ignore-orphans",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/ignore-orphans", "-tf",
+					tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.ignoreOrphans");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
 			// Check
@@ -497,22 +386,15 @@ public class ClassPlanterTest {
 		void passParametersForAClassDiagramWithPackageModeFLATAndExplicitPackage_createsACorrectPlantUMLFile(
 				@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected = Files
-					.readString(
-							Path
-									.of(
-											"src/test/resources/testresults/ClassDiagramWithPackageModeFLATAndExplicitPackageSet.plantuml"));
+			String expected = Files.readString(Path.of(
+					"src/test/resources/testresults/ClassDiagramWithPackageModeFLATAndExplicitPackageSet.plantuml"));
 			System.setProperty("classplanter.output.packageMode", "FLAT");
 			System.setProperty("classplanter.input.includePackages", "a.test.pack.age.one,a.test.pack.age.two");
 			// Run
 			try {
 				ClassPlanter
-						.main(
-								new String[] {
-										"-sf",
-										"src/test/resources/testsources/class-diagram-package-mode-FLAT",
-										"-tf",
-										tempDir.toString() + "/result.plantuml" });
+						.main(new String[] { "-sf", "src/test/resources/testsources/class-diagram-package-mode-FLAT",
+								"-tf", tempDir.toString() + "/result.plantuml" });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -532,18 +414,13 @@ public class ClassPlanterTest {
 		void passParametersToHandleEnumsAsSimpleTypes_createsACorrectPlantUMLFile(@TempDir Path tempDir)
 				throws Exception {
 			// Prepare
-			String expected =
-					Files.readString(Path.of("src/test/resources/testresults/HandleEnumsAsSimpleTypes.plantuml"));
+			String expected = Files
+					.readString(Path.of("src/test/resources/testresults/HandleEnumsAsSimpleTypes.plantuml"));
 			System.setProperty("classplanter.output.handleEnumsAsSimpleTypes", "true");
 			System.setProperty("classplanter.output.showMembers", "true");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/handle-enums-as-simple-types",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/handle-enums-as-simple-types",
+					"-tf", tempDir.toString() + "/result.plantuml" });
 			System.clearProperty("classplanter.output.handleEnumsAsSimpleTypes");
 			System.clearProperty("classplanter.output.showMembers");
 			String returned = Files.readString(Path.of(tempDir.toString(), "result.plantuml"));
@@ -555,22 +432,14 @@ public class ClassPlanterTest {
 		void passParametersToHandleEnumsAsSimpleTypesWithFLATPackageMode_createsACorrectPlantUMLFile(
 				@TempDir Path tempDir) throws Exception {
 			// Prepare
-			String expected = Files
-					.readString(
-							Path
-									.of(
-											"src/test/resources/testresults/HandleEnumsAsSimpleTypes-PackageModeFLAT.plantuml"));
+			String expected = Files.readString(
+					Path.of("src/test/resources/testresults/HandleEnumsAsSimpleTypes-PackageModeFLAT.plantuml"));
 			System.setProperty("classplanter.output.handleEnumsAsSimpleTypes", "true");
 			System.setProperty("classplanter.output.packageMode", "FLAT");
 			System.setProperty("classplanter.output.showMembers", "true");
 			// Run
-			ClassPlanter
-					.main(
-							new String[] {
-									"-sf",
-									"src/test/resources/testsources/handle-enums-as-simple-types",
-									"-tf",
-									tempDir.toString() + "/result.plantuml" });
+			ClassPlanter.main(new String[] { "-sf", "src/test/resources/testsources/handle-enums-as-simple-types",
+					"-tf", tempDir.toString() + "/result.plantuml" });
 			System.setProperty("classplanter.output.packageMode", "NONE");
 			System.clearProperty("classplanter.output.handleEnumsAsSimpleTypes");
 			System.clearProperty("classplanter.output.showMembers");
