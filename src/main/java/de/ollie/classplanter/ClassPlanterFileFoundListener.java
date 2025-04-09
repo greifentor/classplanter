@@ -45,7 +45,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 
 	private final Configuration configuration;
 
-	private List<TypeData> types = new ArrayList<>();
+	private TypeStorage types = new TypeStorage();
 	private List<AssociationData> associations = new ArrayList<>();
 
 	@Override
@@ -73,9 +73,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 						.setPackageName(compilationUnit.getPackageName())
 						.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 						.setSuperClassName(getSuperClassName(typeDeclaration)).setType(getType(typeDeclaration))));
-		System.out.println("types:");
-		compilationUnitMembers.forEach(System.out::println);
-		types.addAll(compilationUnitMembers);
+		compilationUnitMembers.forEach(types::addOrUpdate);
 		compilationUnit.getTypeDeclarations().stream().filter(this::isToImportAsAssociation)
 				.forEach(typeDeclaration -> associations
 						.addAll(getAssociationsOfTypeDeclaration(typeDeclaration, compilationUnit.getPackageName(),
@@ -166,11 +164,11 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 	}
 
 	public List<TypeData> getClasses() {
-		return types.stream()
+		return types.getTypes().stream()
 				.filter(typeData -> (typeData.getType() == Type.CLASS) || (typeData.getType() == Type.ABSTRACT_CLASS)
 						|| (typeData.getType() == Type.ENUM) || (typeData.getType() == Type.INTERFACE)
 						|| (typeData.getType() == Type.REFERENCED))
-				.collect(Collectors.toList());
+				.sorted((td0, td1) -> td0.getClassName().compareTo(td1.getClassName())).toList();
 	}
 
 	public List<AssociationData> getAssociations() {
@@ -205,7 +203,7 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 								.setStereotypes(stereotypeReader.getStereotypes(typeDeclaration))
 								.setType(Type.REFERENCED);
 						if (!isTypeAlreadyKnown(typeData)) {
-							types.add(typeData);
+							types.addOrUpdate(typeData);
 						}
 					}
 				}
@@ -225,22 +223,18 @@ public class ClassPlanterFileFoundListener implements FileFoundListener {
 		return configuration.isHandleEnumsAsSimpleTypes() && isEnumType(typeName);
 	}
 
+	// TODO OLI - Transfer method TypeStorage.
 	private boolean isEnumType(String typeName) {
-		return types.stream()
+		return types.getTypes().stream()
 				.anyMatch(typeData -> (typeData.getType() == Type.ENUM) && (typeData.getClassName().equals(typeName)));
 	}
 
+	// TODO OLI - Transfer method TypeStorage.
 	private boolean isTypeAlreadyKnown(TypeData typeData) {
-		return types.stream().anyMatch(typeDataStored -> isSameType(typeDataStored, typeData));
+		return types.getTypes().stream().anyMatch(typeDataStored -> isSameType(typeDataStored, typeData));
 	}
 
 	private boolean isSameType(TypeData typeDataStored, TypeData typeData) {
-		if ("BClass".equals(typeData.getClassName())) {
-			System.out.println("ts: " + typeDataStored);
-			System.out.println("td: " + typeData);
-			System.out.println("b0: " + Objects.equals(typeDataStored.getClassName(), typeData.getClassName()));
-			System.out.println("b1: " + Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName()));
-		}
 		return Objects.equals(typeDataStored.getClassName(), typeData.getClassName())
 				&& Objects.equals(typeDataStored.getPackageName(), typeData.getPackageName());
 	}
