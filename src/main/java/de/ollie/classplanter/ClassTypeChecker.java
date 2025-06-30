@@ -4,10 +4,12 @@ import java.util.List;
 
 import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author ollie (12.10.2021)
  */
+@RequiredArgsConstructor
 public class ClassTypeChecker {
 
 	private static final List<String> SIMPLE_TYPE_NAMES = List.of("boolean",
@@ -28,12 +30,17 @@ public class ClassTypeChecker {
 			"Short",
 			"String");
 
+	private final Configuration configuration;
+
 	/**
 	 * @param typeName The name of the to check.
 	 * @return "true" if the passed type name is not one of a simple type.
 	 */
 	public boolean isClassType(String typeName) {
-		return typeName != null ? !SIMPLE_TYPE_NAMES.contains(typeName) : false;
+		return typeName != null
+				? !SIMPLE_TYPE_NAMES.contains(typeName)
+						&& !configuration.getAdditionalSimpleTypes().contains(typeName)
+				: false; // NOSONAR OLI: Must be there caused by the null check.
 	}
 
 	/**

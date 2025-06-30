@@ -17,6 +17,8 @@ public class YAMLConfigurationAdder {
 		ensure(yamlConfigurationContent != null, "YAML configuration content cannot be null.");
 		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getActivateRectAngular(),
 				configuration::setActivateRectAngular);
+		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getAdditionalSimpleTypes(),
+				configuration::setAdditionalSimpleTypes);
 		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getExcludeByClassName(),
 				configuration::setExcludeByClassName);
 		setIfInYAMLConfigurationContent(yamlConfigurationContent.getOutput().getExcludeByClassName(),

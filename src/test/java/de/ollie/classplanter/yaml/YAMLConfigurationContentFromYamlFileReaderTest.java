@@ -39,8 +39,10 @@ public class YAMLConfigurationContentFromYamlFileReaderTest {
 											List.of("de.ollie.classplanter", "de.ollie.classplanter.model")))
 					.setOutput(
 							new OutputConfigurationContent()
+									.setAdditionalSimpleTypes(List.of("byte[]",
+											"LocalDate"))
 									.setExcludeByClassName(List.of("AClass", "BClass"))
-                                    .setHandleEnumsAsSimpleTypes(true)
+									.setHandleEnumsAsSimpleTypes(true)
 									.setIgnoreOrphans(true)
 									.setPackageMode(PackageMode.FLAT)
 									.setShowMembers(true)

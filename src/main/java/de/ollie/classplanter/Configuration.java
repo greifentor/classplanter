@@ -1,5 +1,6 @@
 package de.ollie.classplanter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Configuration {
 	}
 
 	private boolean activateRectAngular;
+	private List<String> additionalSimpleTypes = new ArrayList<>();
 	private List<String> excludeByClassName;
 	private List<String> explicitClasses;
 	private List<String> explicitPackages;

@@ -113,6 +113,26 @@ output:
 ```
 
 
+### Additional Simple Type Classes
+
+To add another class name which should handled as a simple type, just add an ``additionalSimpleTypes`` configuration of
+the ``output`` section of your configuration file.
+
+```
+property name: classplanter.output.additionalSimpleTypes
+values: ClassName[,ClassName]
+```
+or set a list of names in the YAML:
+
+```
+output:
+  additionalSimpleTypes:
+    - ClassName
+    - ClassName
+    ...
+```
+
+
 ### Having Packages in the Diagram
 
 To have information about the packages in the diagram, set a package mode:

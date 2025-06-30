@@ -16,8 +16,13 @@ import de.ollie.classplanter.model.TypeData.Type;
  */
 public class PlantUMLClassDiagramCreator {
 
-	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
 	private static MembersToPlantUMLConverter membersToPlantUMLConverter = new MembersToPlantUMLConverter();
+
+	private ClassTypeChecker classTypeChecker;
+
+	public PlantUMLClassDiagramCreator(Configuration configuration) {
+		classTypeChecker = new ClassTypeChecker(configuration);
+	}
 
 	public String create(ClassPlanterFileFoundListener fileFoundListener, Configuration outputConfiguration) {
 		String code = "@startuml\n" //

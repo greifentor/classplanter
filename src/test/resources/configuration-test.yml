@@ -6,6 +6,9 @@ input:
     - de.ollie.classplanter
     - de.ollie.classplanter.model
 output:
+  additionalSimpleTypes:
+    - byte[]
+    - LocalDate
   excludeByClassName:
     - AClass
     - BClass

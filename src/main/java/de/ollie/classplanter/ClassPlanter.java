@@ -38,7 +38,7 @@ public class ClassPlanter {
 			for (String sourceFolderName : sourceFolderNames) {
 				processSourceFolder(sourceFolderName, fileFoundListener);
 			}
-			String result = new PlantUMLClassDiagramCreator().create(fileFoundListener, configuration);
+			String result = new PlantUMLClassDiagramCreator(configuration).create(fileFoundListener, configuration);
 			deleteTargetFileIfExisting(targetFilePath);
 			Files.writeString(targetFilePath, result, StandardOpenOption.CREATE_NEW);
 			System.out.println("wrote result to: " + targetFilePath.toString());
@@ -66,7 +66,8 @@ public class ClassPlanter {
 	}
 
 	private static Configuration getConfigurationFromProperties() {
-		return new Configuration().setExcludeByClassName(readExcludeByClassNameFromProperties())
+		return new Configuration().setAdditionalSimpleTypes(readAdditionalSimpleClassesFromProperties())
+				.setExcludeByClassName(readExcludeByClassNameFromProperties())
 				.setExplicitClasses(readExplicitClassNamesFromProperties())
 				.setExplicitPackages(readExplicitPackageNamesFromProperties())
 				.setHandleEnumsAsSimpleTypes(Boolean.getBoolean("classplanter.output.handleEnumsAsSimpleTypes"))
@@ -75,6 +76,11 @@ public class ClassPlanter {
 				.setShowMembers(Boolean.getBoolean("classplanter.output.showMembers"))
 				.setSuppressFinal(Boolean.getBoolean("classplanter.output.suppressFinal"))
 				.setUniteEqualAssociations(Boolean.getBoolean("classplanter.output.uniteEqualAssociations"));
+	}
+
+	private static List<String> readAdditionalSimpleClassesFromProperties() {
+		String classNames = System.getProperty("classplanter.output.additionalSimpleClasses", "");
+		return stringListSplitter.split(classNames);
 	}
 
 	private static List<String> readExcludeByClassNameFromProperties() {

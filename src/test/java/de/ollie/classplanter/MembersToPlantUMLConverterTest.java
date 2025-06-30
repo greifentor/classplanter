@@ -30,9 +30,6 @@ class MembersToPlantUMLConverterTest {
 	private Configuration configuration;
 
 	@Spy
-	private ClassTypeChecker classTypeChecker = new ClassTypeChecker();
-
-	@Spy
 	private VisibilityToPlantUMLConverter visibilityToPlantUMLConverter = new VisibilityToPlantUMLConverter();
 
 	@InjectMocks

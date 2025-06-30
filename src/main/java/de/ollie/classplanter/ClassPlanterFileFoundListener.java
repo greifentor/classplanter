@@ -29,24 +29,27 @@ import de.ollie.classplanter.model.TypeData;
 import de.ollie.classplanter.model.TypeData.Type;
 import de.ollie.fstools.traversal.FileFoundEvent;
 import de.ollie.fstools.traversal.FileFoundListener;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author ollie (01.10.2021)
  */
-@RequiredArgsConstructor
 public class ClassPlanterFileFoundListener implements FileFoundListener {
 
-	private static ClassTypeChecker classTypeChecker = new ClassTypeChecker();
 	private static PackageAgent packageAgent = new PackageAgent();
 	private static StereotypeReader stereotypeReader = new StereotypeReader();
 	private static ManyTypeChecker manyTypeChecker = new ManyTypeChecker();
 	private static SuperInterfaceAgent superInterfaceAgent = new SuperInterfaceAgent();
 
+	private ClassTypeChecker classTypeChecker;
 	private final Configuration configuration;
 
 	private List<TypeData> types = new ArrayList<>();
 	private List<AssociationData> associations = new ArrayList<>();
+
+	public ClassPlanterFileFoundListener(Configuration configuration) {
+		this.configuration = configuration;
+		classTypeChecker = new ClassTypeChecker(configuration);
+	}
 
 	@Override
 	public void fileFound(FileFoundEvent event) {

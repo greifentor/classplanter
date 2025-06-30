@@ -19,6 +19,7 @@ public class OutputConfigurationContent {
 		NONE;
 	}
 
+	private List<String> additionalSimpleTypes;
 	private Boolean activateRectAngular;
 	private List<String> excludeByClassName;
 	private Boolean handleEnumsAsSimpleTypes;

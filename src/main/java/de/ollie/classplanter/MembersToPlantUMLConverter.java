@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MembersToPlantUMLConverter {
 
-	private final ClassTypeChecker classTypeChecker = new ClassTypeChecker();
 	private final VisibilityToPlantUMLConverter visibilityToPlantUMLConverter = new VisibilityToPlantUMLConverter();
 
 	public String createMemberCode(TypeData typeData, Configuration configuration, boolean indent,
@@ -22,7 +21,8 @@ public class MembersToPlantUMLConverter {
 			List<TypeData> types) {
 		return typeData.getMembers()
 				.stream()
-				.filter(member -> !classTypeChecker.isAClassType(member.getType(), configuration, types))
+				.filter(member -> !new ClassTypeChecker(configuration).isAClassType(member.getType(), configuration,
+						types))
 				.filter(member -> !configuration.isIgnoreConstants() || !member.isConstant())
 				.sorted(this::compareMembers)
 				.map(member -> "\t" + (indent ? "\t" : "") + getMemberCode(typeData, member, configuration))
